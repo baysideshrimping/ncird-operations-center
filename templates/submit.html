@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Data - {{ stream.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <h1 style="color: #1e3a5f; margin-bottom: 1rem;">Submit Data: {{ stream.name }}</h1>
+    <p style="color: #666; margin-bottom: 2rem;">{{ stream.description }}</p>
+
+    <div class="card">
+        <div class="card-header">Upload File</div>
+
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div style="margin: 1.5rem 0;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
+                    Select File
+                </label>
+                <input type="file" name="file" id="fileInput" required
+                       style="display: block; width: 100%; padding: 0.75rem; border: 2px dashed #ccc; border-radius: 4px; cursor: pointer;">
+                <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                    Accepted formats: {{ stream.format | join(', ') }}
+                </p>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                Upload and Validate
+            </button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">System Information</div>
+        <table>
+            <tr>
+                <th>Category</th>
+                <td>{{ stream.category }}</td>
+            </tr>
+            <tr>
+                <th>Data Type</th>
+                <td>{{ stream.data_type }}</td>
+            </tr>
+            <tr>
+                <th>Submission Frequency</th>
+                <td>{{ stream.frequency }}</td>
+            </tr>
+            <tr>
+                <th>Contact</th>
+                <td><a href="mailto:{{ stream.contact }}">{{ stream.contact }}</a></td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="text-align: center; margin-top: 2rem;">
+        <a href="/system/{{ stream.id }}" class="btn btn-secondary">Back to {{ stream.name }}</a>
+        <a href="/" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<script>
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+        console.log(`File selected: ${file.name} (${sizeMB} MB)`);
+    }
+});
+</script>
+{% endblock %}

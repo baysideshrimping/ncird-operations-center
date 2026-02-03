@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Validation Results - {{ submission.filename }}{% endblock %}
+
+{% block content %}
+<h1 style="color: #1e3a5f; margin-bottom: 2rem;">Validation Results</h1>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="margin-bottom: 0.5rem;">{{ submission.filename }}</h2>
+            <p style="color: #666;">System: <strong>{{ stream.name }}</strong></p>
+            <p style="color: #666; font-size: 0.9rem;">Submitted: {{ submission.timestamp }}</p>
+        </div>
+        <div>
+            {% if submission.status == 'passed' %}
+                <span class="badge badge-success" style="font-size: 1.5rem; padding: 0.75rem 1.5rem;">✅ Passed</span>
+            {% elif submission.status == 'failed' %}
+                <span class="badge badge-danger" style="font-size: 1.5rem; padding: 0.75rem 1.5rem;">❌ Failed</span>
+            {% elif submission.status == 'passed_with_warnings' %}
+                <span class="badge badge-warning" style="font-size: 1.5rem; padding: 0.75rem 1.5rem;">⚠️ Warnings</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px;">
+            <div style="font-size: 2rem; font-weight: 600; color: #2c5282;">{{ submission.row_count }}</div>
+            <div style="font-size: 0.85rem; color: #666;">Rows Processed</div>
+        </div>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px;">
+            <div style="font-size: 2rem; font-weight: 600; color: #dc3545;">{{ submission.error_count }}</div>
+            <div style="font-size: 0.85rem; color: #666;">Errors</div>
+        </div>
+        <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px;">
+            <div style="font-size: 2rem; font-weight: 600; color: #ffc107;">{{ submission.warning_count }}</div>
+            <div style="font-size: 0.85rem; color: #666;">Warnings</div>
+        </div>
+    </div>
+</div>
+
+{% if submission.errors %}
+<div class="card">
+    <div class="card-header">Errors ({{ submission.error_count }})</div>
+    <div style="max-height: 500px; overflow-y: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Row</th>
+                    <th style="width: 150px;">Field</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for error in submission.errors[:100] %}
+                <tr>
+                    <td>{{ error.row or '—' }}</td>
+                    <td><code>{{ error.field or 'General' }}</code></td>
+                    <td>{{ error.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if submission.error_count > 100 %}
+        <p style="text-align: center; color: #666; padding: 1rem;">
+            Showing first 100 of {{ submission.error_count }} errors
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% if submission.warnings %}
+<div class="card">
+    <div class="card-header">Warnings ({{ submission.warning_count }})</div>
+    <div style="max-height: 400px; overflow-y: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Row</th>
+                    <th style="width: 150px;">Field</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for warning in submission.warnings[:50] %}
+                <tr>
+                    <td>{{ warning.row or '—' }}</td>
+                    <td><code>{{ warning.field or 'General' }}</code></td>
+                    <td>{{ warning.message }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% if submission.warning_count > 50 %}
+        <p style="text-align: center; color: #666; padding: 1rem;">
+            Showing first 50 of {{ submission.warning_count }} warnings
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% if submission.status == 'passed' and submission.error_count == 0 %}
+<div class="card" style="background: #d4edda; border-left: 4px solid #28a745;">
+    <h3 style="color: #155724; margin-bottom: 0.5rem;">✅ Validation Successful</h3>
+    <p style="color: #155724;">All validation checks passed. This file is ready for submission.</p>
+</div>
+{% endif %}
+
+<div style="text-align: center; margin-top: 2rem;">
+    <a href="/system/{{ submission.system_id }}" class="btn btn-secondary">Back to {{ stream.name }}</a>
+    <a href="/" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block title %}Operations Dashboard - NCIRD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .stat-card h3 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card p {
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+
+    .systems-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .system-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-left: 4px solid #2c5282;
+    }
+
+    .system-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .system-card.healthy {
+        border-left-color: #28a745;
+    }
+
+    .system-card.warning {
+        border-left-color: #ffc107;
+    }
+
+    .system-card.alert {
+        border-left-color: #dc3545;
+    }
+
+    .system-card.no-data {
+        border-left-color: #6c757d;
+        opacity: 0.7;
+    }
+
+    .system-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .system-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1e3a5f;
+    }
+
+    .system-description {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+    }
+
+    .system-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin: 1rem 0;
+    }
+
+    .system-stat {
+        text-align: center;
+        padding: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .system-stat-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c5282;
+    }
+
+    .system-stat-label {
+        font-size: 0.75rem;
+        color: #666;
+        text-transform: uppercase;
+    }
+
+    .system-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .system-actions a {
+        flex: 1;
+        text-align: center;
+        padding: 0.5rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .action-view {
+        background: #2c5282;
+        color: white;
+    }
+
+    .action-view:hover {
+        background: #1e3a5f;
+    }
+
+    .action-submit {
+        background: #28a745;
+        color: white;
+    }
+
+    .action-submit:hover {
+        background: #218838;
+    }
+
+    .last-submission {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.5rem;
+        font-style: italic;
+    }
+
+    .category-section {
+        margin: 3rem 0;
+    }
+
+    .category-header {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e3a5f;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .recent-submissions {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .submission-item {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .submission-item:last-child {
+        border-bottom: none;
+    }
+
+    .submission-info {
+        flex: 1;
+    }
+
+    .submission-system {
+        font-weight: 600;
+        color: #2c5282;
+    }
+
+    .submission-filename {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .submission-time {
+        font-size: 0.85rem;
+        color: #999;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 style="color: #1e3a5f; margin-bottom: 2rem;">NCIRD Data Operations Center</h1>
+
+<!-- Overall Statistics -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>{{ overall_stats.total }}</h3>
+        <p>Total Submissions</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ overall_stats.passed }}</h3>
+        <p>Passed Validation</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ overall_stats.failed }}</h3>
+        <p>Failed Validation</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ overall_stats.pass_rate }}%</h3>
+        <p>Overall Pass Rate</p>
+    </div>
+</div>
+
+<!-- Systems by Category -->
+{% for category in categories %}
+    {% set category_systems = system_status.values() | selectattr('stream.category', 'equalto', category) | list %}
+    {% if category_systems %}
+    <div class="category-section">
+        <h2 class="category-header">{{ category }}</h2>
+        <div class="systems-grid">
+            {% for item in category_systems %}
+            <div class="system-card {{ item.health.status }}">
+                <div class="system-header">
+                    <span class="system-name">{{ item.stream.name }}</span>
+                    {% if item.health.status == 'healthy' %}
+                        <span class="badge badge-success">✅ Healthy</span>
+                    {% elif item.health.status == 'warning' %}
+                        <span class="badge badge-warning">⚠️ Warning</span>
+                    {% elif item.health.status == 'alert' %}
+                        <span class="badge badge-danger">❌ Alert</span>
+                    {% else %}
+                        <span class="badge badge-secondary">— No Data</span>
+                    {% endif %}
+                </div>
+
+                <p class="system-description">{{ item.stream.description }}</p>
+
+                <div class="system-stats">
+                    <div class="system-stat">
+                        <div class="system-stat-value">{{ item.stats.total }}</div>
+                        <div class="system-stat-label">Submissions</div>
+                    </div>
+                    <div class="system-stat">
+                        <div class="system-stat-value">{{ item.stats.pass_rate }}%</div>
+                        <div class="system-stat-label">Pass Rate</div>
+                    </div>
+                    <div class="system-stat">
+                        <div class="system-stat-value">
+                            {% if item.health.days_since_last is not none %}
+                                {{ item.health.days_since_last }}d
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+                        <div class="system-stat-label">Last Submit</div>
+                    </div>
+                </div>
+
+                {% if item.health.last_submission %}
+                <p class="last-submission">
+                    Last updated: {{ item.health.last_submission }}
+                </p>
+                {% endif %}
+
+                <div class="system-actions">
+                    <a href="/system/{{ item.stream.id }}" class="action-view">View Details</a>
+                    <a href="/submit/{{ item.stream.id }}" class="action-submit">Submit Data</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
+
+<!-- Recent Submissions -->
+<div class="category-section">
+    <h2 class="category-header">Recent Submissions</h2>
+    <div class="recent-submissions">
+        {% if recent_submissions %}
+            {% for submission in recent_submissions %}
+            <div class="submission-item">
+                <div class="submission-info">
+                    <div class="submission-system">{{ submission.system_id.upper() }}</div>
+                    <div class="submission-filename">{{ submission.filename }}</div>
+                    <div class="submission-time">{{ submission.timestamp }}</div>
+                </div>
+                <div>
+                    {% if submission.status == 'passed' %}
+                        <span class="badge badge-success">Passed</span>
+                    {% elif submission.status == 'failed' %}
+                        <span class="badge badge-danger">Failed</span>
+                    {% elif submission.status == 'passed_with_warnings' %}
+                        <span class="badge badge-warning">Warnings</span>
+                    {% else %}
+                        <span class="badge badge-secondary">Pending</span>
+                    {% endif %}
+                </div>
+                <div>
+                    <a href="/validation/{{ submission.submission_id }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="text-align: center; color: #999; padding: 2rem;">No submissions yet</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

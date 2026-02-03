@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NCIRD Operations Center{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar-brand small {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .navbar-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .navbar-links a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .navbar-links a.active {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Flash messages */
+        .flash-messages {
+            max-width: 1400px;
+            margin: 1rem auto;
+            padding: 0 2rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-error {
+            background: #fee;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #2c5282;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e3a5f;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .badge-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .badge-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .badge-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Footer */
+        footer {
+            background: #1e3a5f;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        footer a {
+            color: #88b4d8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-links {
+                gap: 1rem;
+            }
+
+            .navbar-links a {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="/" class="navbar-brand">
+                NCIRD Operations Center
+                <small>Data Surveillance Dashboard</small>
+            </a>
+            <ul class="navbar-links">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/map">Map</a></li>
+                <li><a href="/documentation">Documentation</a></li>
+                <li><a href="/admin">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            <strong>NCIRD Data Operations Center</strong><br>
+            National Center for Immunization and Respiratory Diseases<br>
+            Centers for Disease Control and Prevention
+        </p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+            For technical support: <a href="mailto:ncirddataops@cdc.gov">ncirddataops@cdc.gov</a>
+        </p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

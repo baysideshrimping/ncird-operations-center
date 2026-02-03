@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - NCIRD{% endblock %}
+
+{% block content %}
+<h1 style="color: #1e3a5f; margin-bottom: 2rem;">Admin Panel</h1>
+
+<div class="card">
+    <div class="card-header" style="color: #dc3545;">⚠️ Danger Zone</div>
+    <p style="margin: 1rem 0;">Administrative actions that affect system data.</p>
+
+    <form method="POST" action="/api/clear-data" onsubmit="return confirm('Are you sure? This will delete ALL submission data.');">
+        <div style="margin: 1.5rem 0;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">
+                Admin Password
+            </label>
+            <input type="password" name="password" required
+                   style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <button type="submit" class="btn btn-danger">
+            Clear All Submission Data
+        </button>
+    </form>
+</div>
+
+<div style="text-align: center; margin-top: 2rem;">
+    <a href="/" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}
