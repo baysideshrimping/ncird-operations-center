@@ -477,6 +477,46 @@ if missing:
                             Warns if >20% missing, as this impacts epidemiological analysis.
                         </div>
                     </div>
+
+                    <div class="rule-card warning" id="nnad-completeness-1-5">
+                        <div class="rule-header">
+                            <span class="rule-title">1.5 Pregnancy Status for Reproductive-Age Females</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            For females aged 12-50 years, pregnancy status should be documented (Y/N/U/NA).
+                            Missing pregnancy status impacts risk assessment for teratogenic diseases.
+                            If pregnant=Y, trimester should also be recorded.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Complete:</div>
+                            <div class="example-good">Female age 28, pregnant=Y, trimester=2</div>
+                            <div class="example-label">⚠️ Incomplete:</div>
+                            <div class="example-bad">Female age 28, pregnant=blank</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nnad-completeness-1-6">
+                        <div class="rule-header">
+                            <span class="rule-title">1.6 Outbreak Name When Outbreak-Associated</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            If outbreak_associated=Y, outbreak_name field should identify the specific outbreak.
+                            Essential for linking cases to outbreak investigations.
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nnad-completeness-1-7">
+                        <div class="rule-header">
+                            <span class="rule-title">1.7 Country of Exposure for Imported Cases</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            If import_status=IMP (Imported), country_of_exposure should document where patient acquired infection.
+                            Critical for tracking international disease transmission patterns.
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -534,6 +574,33 @@ if missing:
                         <div class="rule-description">
                             Excessive decimal places (>2 for percentages, >4 for lab values) may indicate calculation
                             errors or inappropriate precision for biological measurements.
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nnad-accuracy-2-4">
+                        <div class="rule-header">
+                            <span class="rule-title">2.4 Vaccination Dose Count Plausibility</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Vaccination doses must be 0-10. Values >10 likely indicate data entry errors.
+                            Most vaccines require ≤5 doses for full series.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">vaccination_doses: 2 (MMR standard series)</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">vaccination_doses: 25 (implausible)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+dose_count = int(doses)
+if dose_count < 0 or dose_count > 10:
+    result.add_error(
+        f"Implausible vaccination dose count: {dose_count}",
+        field='vaccination_doses',
+        doc_link='#nnad-accuracy-2-4'
+    )
                         </div>
                     </div>
                 </div>
@@ -602,6 +669,75 @@ if onset_date > report_date:
                         <div class="rule-description">
                             Some conditions have age-specific patterns (e.g., congenital conditions in adults,
                             age-related diseases in children). Flags inconsistencies for review.
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nnad-consistency-3-4">
+                        <div class="rule-header">
+                            <span class="rule-title">3.4 Pregnancy Status vs Sex</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Pregnancy status = Yes is only valid for sex = Female.
+                            Male patients cannot have pregnant=Y.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">sex=M, pregnant=Y (contradiction)</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nnad-consistency-3-5">
+                        <div class="rule-header">
+                            <span class="rule-title">3.5 Vaccination Date Temporal Logic</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Vaccination dates must follow temporal logic: birth_date < vaccination_date < illness_onset_date.
+                            Cannot vaccinate before birth or after illness onset.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">Birth: 1990-01-01 → Vax: 2020-05-15 → Onset: 2026-01-10</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">Vax: 2026-01-15 → Onset: 2026-01-10 (vax after onset)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if vax_dt > onset_dt:
+    result.add_error(
+        f"Vaccination date after illness onset",
+        field='vaccination_date_1',
+        doc_link='#nnad-consistency-3-5'
+    )
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nnad-consistency-3-6">
+                        <div class="rule-header">
+                            <span class="rule-title">3.6 Case Status vs Laboratory Data</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Confirmed cases (410605003) should have supporting laboratory data.
+                            If case_status=Confirmed but no lab results documented, verify classification criteria were met.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Consistent:</div>
+                            <div class="example-good">case_status=410605003 (Confirmed), lab_result=Positive</div>
+                            <div class="example-label">⚠️ Verify:</div>
+                            <div class="example-bad">case_status=410605003 (Confirmed), lab_result=blank</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nnad-consistency-3-7">
+                        <div class="rule-header">
+                            <span class="rule-title">3.7 Congenital Conditions Age Check</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Congenital conditions (Congenital Rubella, Congenital Syphilis) are typically diagnosed in infants/young children.
+                            Cases with age >2 years are flagged for verification.
                         </div>
                     </div>
                 </div>
@@ -708,6 +844,51 @@ def validate_date_format(date_val):
                             Warns if non-standard codes used.
                         </div>
                     </div>
+
+                    <div class="rule-card error" id="nnad-validity-4-5">
+                        <div class="rule-header">
+                            <span class="rule-title">4.5 Pregnancy Status and Trimester Codes</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Pregnancy status must be Y/N/U/NA. Trimester must be 1/2/3/U.
+                            Pregnancy outcome codes: LIVE_BIRTH, STILLBIRTH, MISCARRIAGE, ABORTION, ONGOING, UNK.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid codes:</div>
+                            <div class="example-good">pregnant=Y, trimester=2, outcome=LIVE_BIRTH</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">pregnant="yes" (must be Y), trimester=second (must be 2)</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nnad-validity-4-6">
+                        <div class="rule-header">
+                            <span class="rule-title">4.6 Outbreak Associated Y/N/U</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Outbreak_associated field must use Y (Yes), N (No), or U (Unknown).
+                            Free text like "true", "outbreak", "yes" are invalid.
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nnad-validity-4-7">
+                        <div class="rule-header">
+                            <span class="rule-title">4.7 Import Status Codes</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Import status must use standard codes: IMP (Imported), IND (Import-related), INC (Indigenous), UNK (Unknown).
+                            Indicates whether disease was acquired domestically or internationally.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">import_status=IMP (case traveled from endemic country)</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">import_status="imported" (use IMP code)</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -769,6 +950,35 @@ def validate_date_format(date_val):
                         <div class="rule-description">
                             Cases with onset dates >2 years old may be historical backfill or data cleanup.
                             Flagged for verification.
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nnad-timeliness-5-4">
+                        <div class="rule-header">
+                            <span class="rule-title">5.4 Investigation Timeliness</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Case investigation should begin within 3 days of report date.
+                            Report to health department should occur within 14 days of onset.
+                            Delays may compromise contact tracing and outbreak control.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Timely:</div>
+                            <div class="example-good">Report: 2026-01-10 → Investigation Start: 2026-01-11 (1 day)</div>
+                            <div class="example-label">⚠️ Delayed:</div>
+                            <div class="example-bad">Report: 2026-01-10 → Investigation Start: 2026-01-20 (10 days)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+invest_lag = (invest_dt - report_dt).days
+
+if invest_lag > 3:
+    result.add_warning(
+        f"Investigation started {invest_lag} days after report (recommend ≤3 days)",
+        field='case_investigation_start_date',
+        doc_link='#nnad-timeliness-5-4'
+    )
                         </div>
                     </div>
                 </div>
@@ -892,6 +1102,70 @@ if has_dups:
                             If parotitis=Y, expect parotitis_duration. If complications reported, expect hospitalization status.
                         </div>
                     </div>
+
+                    <div class="rule-card warning" id="mumps-completeness-1-3">
+                        <div class="rule-header">
+                            <span class="rule-title">1.3 Outbreak Name Required</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            If outbreak_associated=Y, outbreak_name should identify the specific outbreak investigation.
+                            Essential for linking cases in MVPS.
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="mumps-completeness-1-4">
+                        <div class="rule-header">
+                            <span class="rule-title">1.4 Travel History for Imported Cases</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            If import_status=Imported, travel_history should document country/region of acquisition.
+                            Critical for tracking international mumps transmission.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accuracy -->
+    <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">🎯</span>
+                <span>2. ACCURACY - Clinical Data Plausibility</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <div class="rule-grid">
+                    <div class="rule-card error" id="mumps-accuracy-2-1">
+                        <div class="rule-header">
+                            <span class="rule-title">2.1 Parotitis Duration Plausibility</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Parotitis duration >60 days is implausible. Typical mumps parotitis lasts 7-10 days.
+                            Values >60 likely indicate data entry errors (100 instead of 10).
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Plausible:</div>
+                            <div class="example-good">parotitis_duration_days: 7</div>
+                            <div class="example-label">✗ Implausible:</div>
+                            <div class="example-bad">parotitis_duration_days: 100 (likely typo for 10)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if duration_val > 60:
+    result.add_error(
+        f"Parotitis duration {duration_val} days is implausible",
+        field='parotitis_duration_days',
+        doc_link='#mumps-accuracy-2-1'
+    )
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -957,6 +1231,90 @@ if lab_result_str not in LAB_RESULT_CODES:
                             Free text like "yes", "true", "1" are flagged.
                         </div>
                     </div>
+
+                    <div class="rule-card warning" id="mumps-validity-4-3">
+                        <div class="rule-header">
+                            <span class="rule-title">4.3 Genotype Validation</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Mumps genotype must be A-L, N, or UNK. Genotype should only be provided for PCR-positive cases.
+                            Common circulating genotypes: G (US), H (UK), D (Asia).
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">genotype=G, lab_result=10828004 (Positive)</div>
+                            <div class="example-label">⚠️ Inconsistent:</div>
+                            <div class="example-bad">genotype=G, lab_result=260385009 (Negative)</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="mumps-validity-4-4">
+                        <div class="rule-header">
+                            <span class="rule-title">4.4 Outbreak Associated Code</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Outbreak_associated must be Y/N/U. Free text values cause MVPS processing errors.
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="mumps-validity-4-5">
+                        <div class="rule-header">
+                            <span class="rule-title">4.5 Import Status Codes</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Recommend standard codes: IMP (Imported), IND (Import-related), INC (Indigenous), UNK (Unknown).
+                            Standardizes tracking of international vs domestic mumps transmission.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeliness -->
+    <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">⏱️</span>
+                <span>5. TIMELINESS - Specimen Collection Timing</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <div class="rule-grid">
+                    <div class="rule-card warning" id="mumps-timeliness-5-1">
+                        <div class="rule-header">
+                            <span class="rule-title">5.1 IgM Specimen Collection Window</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Mumps IgM testing is most accurate 3-45 days after illness onset.
+                            Specimens collected too early (<3 days) or too late (>45 days) may yield false negatives.
+                            Affects case classification accuracy.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Optimal:</div>
+                            <div class="example-good">Onset: 2026-01-01 → IgM specimen: 2026-01-08 (7 days)</div>
+                            <div class="example-label">⚠️ Suboptimal:</div>
+                            <div class="example-bad">Onset: 2026-01-01 → IgM specimen: 2025-12-30 (before onset - false negative risk)</div>
+                            <div class="example-bad">Onset: 2026-01-01 → IgM specimen: 2026-03-01 (60 days - false negative risk)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+days_from_onset = (collection_dt - onset_dt).days
+
+if days_from_onset < 3:
+    result.add_warning(
+        f"IgM specimen collected {days_from_onset} days after onset (optimal: 3-45 days)",
+        field='specimen_collection_date',
+        doc_link='#mumps-timeliness-5-1'
+    )
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -999,6 +1357,60 @@ if lab_result_str not in LAB_RESULT_CODES:
                         <div class="rule-description">
                             Specimen collection date must be before or same as lab result date.
                             Cannot get results before collecting specimen.
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="mumps-consistency-3-3">
+                        <div class="rule-header">
+                            <span class="rule-title">3.3 Clinical Case Definition Criteria</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Per CSTE case definition, clinical mumps requires parotitis ≥2 days duration.
+                            Cases with parotitis <2 days may not meet case criteria.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Meets criteria:</div>
+                            <div class="example-good">parotitis=Y, duration=7 days</div>
+                            <div class="example-label">⚠️ Does not meet:</div>
+                            <div class="example-bad">parotitis=Y, duration=1 day (insufficient for case definition)</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="mumps-consistency-3-4">
+                        <div class="rule-header">
+                            <span class="rule-title">3.4 Sex-Specific Complications</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Orchitis (testicular inflammation) only occurs in males.
+                            Oophoritis (ovarian inflammation) only occurs in females.
+                            Common data entry error when copying/pasting records.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">sex=F, orchitis=Y (anatomically impossible)</div>
+                            <div class="example-bad">sex=M, oophoritis=Y (anatomically impossible)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if orchitis == 'Y' and sex == 'F':
+    result.add_error(
+        "Orchitis cannot occur in female patients",
+        field='orchitis',
+        doc_link='#mumps-consistency-3-4'
+    )
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="mumps-consistency-3-5">
+                        <div class="rule-header">
+                            <span class="rule-title">3.5 Severe Complications vs Hospitalization</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Severe complications (encephalitis, meningitis, pancreatitis) typically require hospitalization.
+                            Cases with severe complications but hospitalized=N are flagged for verification.
                         </div>
                     </div>
                 </div>
