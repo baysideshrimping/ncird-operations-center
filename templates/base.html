@@ -78,25 +78,18 @@
             position: relative;
         }
 
-        /* Demo watermark - appears on white content areas */
+        /* Demo watermark - tiled SVG across entire content area */
         .container::before {
-            content: "DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION";
+            content: "";
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            font-size: 14px;
-            font-weight: 600;
-            color: rgba(0, 0, 0, 0.06);
-            transform: rotate(-25deg);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Segoe UI, Tahoma, Geneva, Verdana, sans-serif' font-size='14' font-weight='600' fill='rgba(0,0,0,0.06)' letter-spacing='2' transform='rotate(-25, 200, 100)'%3EDEMO %E2%80%A2 NOT FOR PRODUCTION%3C/text%3E%3C/svg%3E");
+            background-repeat: repeat;
             pointer-events: none;
             z-index: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            line-height: 3;
-            letter-spacing: 2px;
-            background-repeat: repeat;
         }
 
         .container > * {
@@ -262,6 +255,12 @@
             color: #88b4d8;
         }
 
+        /* Blurred text */
+        .blurred {
+            filter: blur(4px);
+            user-select: none;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .navbar-links {
@@ -285,7 +284,7 @@
     <nav class="navbar">
         <div class="navbar-content">
             <a href="/" class="navbar-brand">
-                NCIRD Operations Center
+                <span class="blurred">NCIRD</span> Operations Center
                 <small>Data Surveillance Dashboard</small>
             </a>
             <ul class="navbar-links">
@@ -328,7 +327,7 @@
     <!-- Footer -->
     <footer>
         <p>
-            <strong>NCIRD Data Operations Center</strong><br>
+            <strong><span class="blurred">NCIRD</span> Data Operations Center</strong><br>
             National Center for Immunization and Respiratory Diseases<br>
             Data Validation Demonstration
         </p>

@@ -1,3 +1,23 @@
+# ============================================================
+# DISCLAIMER
+# ============================================================
+#
+# THIS IS A PERSONAL EDUCATIONAL PROJECT.
+# It is NOT affiliated with, endorsed by, or representative of
+# the CDC, NCIRD, Peraton, or any government agency.
+#
+# All data is fake/simulated. No real public health data is
+# used or displayed. This project exists solely to demonstrate
+# software development concepts and learn Flask/Python.
+#
+# ============================================================
+
+---
+
+> **IMPORTANT: This repository is a personal educational project created to learn and demonstrate web application development with Flask/Python. It is NOT official CDC or Peraton software. It is NOT affiliated with, endorsed by, or representative of the Centers for Disease Control and Prevention (CDC), the National Center for Immunization and Respiratory Diseases (NCIRD), Peraton, or any U.S. government agency. All data shown in this application is entirely fake and simulated. No real surveillance data, public health information, or government systems are involved in any way.**
+
+---
+
 # NCIRD Data Operations Center
 
 A unified platform for monitoring, validating, and visualizing all National Center for Immunization and Respiratory Diseases (NCIRD) data streams.

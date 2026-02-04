@@ -5,7 +5,7 @@ Main Flask Application
 Unified platform for monitoring and validating all NCIRD data streams
 """
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, session
 import os
 import pandas as pd
 from datetime import datetime
@@ -56,6 +56,39 @@ def maybe_seed_demo_data():
             print(f"Could not seed demo data: {e}")
 
 maybe_seed_demo_data()
+
+
+# ============================================================================
+# LOGIN GATE
+# ============================================================================
+
+@app.before_request
+def require_login():
+    """Redirect to login page if not authenticated"""
+    allowed_endpoints = ('login', 'static')
+    if request.endpoint not in allowed_endpoints and not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Simple login gate"""
+    error = None
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        if password == '123':
+            session['logged_in'] = True
+            return redirect(url_for('dashboard'))
+        else:
+            error = 'Invalid password. Please try again.'
+    return render_template('login.html', error=error)
+
+
+@app.route('/logout')
+def logout():
+    """Clear session and redirect to login"""
+    session.clear()
+    return redirect(url_for('login'))
 
 
 # ============================================================================
