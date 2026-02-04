@@ -122,12 +122,38 @@
         opacity: 0;
         transition: opacity 0.2s;
         z-index: 1000;
-        max-width: 280px;
+        max-width: 300px;
     }
 
     .tooltip strong {
         font-size: 1.1em;
     }
+
+    .tooltip-streams {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .tooltip-stream-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2px 0;
+    }
+
+    .tooltip-stream-name {
+        opacity: 0.9;
+    }
+
+    .tooltip-stream-status {
+        font-weight: 600;
+    }
+
+    .stream-passed { color: #4ade80; }
+    .stream-warning { color: #fbbf24; }
+    .stream-failed { color: #f87171; }
+    .stream-nodata { color: #9ca3af; }
 
     .system-filter {
         margin-bottom: 1.5rem;
@@ -223,6 +249,24 @@
         font-size: 0.85rem;
         color: #666;
     }
+
+    .stream-icons {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .stream-icon {
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-weight: 600;
+    }
+
+    .stream-icon.passed { background: #dcfce7; color: #166534; }
+    .stream-icon.passed_with_warnings { background: #fef3c7; color: #92400e; }
+    .stream-icon.failed { background: #fee2e2; color: #991b1b; }
+    .stream-icon.no_data { background: #f3f4f6; color: #6b7280; }
 </style>
 {% endblock %}
 
@@ -284,6 +328,14 @@
 
 <div class="state-grid-section">
     <h3>Jurisdiction Details</h3>
+    <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+        Stream status: <strong>N</strong>=NNAD <strong>M</strong>=Mumps <strong>R</strong>=NREVSS
+        &nbsp;|&nbsp;
+        <span style="color: #166534;">■</span> Passed
+        <span style="color: #92400e;">■</span> Warnings
+        <span style="color: #991b1b;">■</span> Failed
+        <span style="color: #6b7280;">■</span> No data
+    </p>
     <div class="filter-bar">
         <button class="filter-btn active" onclick="filterStates('all')">All ({{ jurisdictions|length }})</button>
         <button class="filter-btn" onclick="filterStates('passed')">Healthy ({{ passed_count.value }})</button>
@@ -294,19 +346,16 @@
     <div class="state-grid" id="state-grid">
         {% for jurisdiction in jurisdictions %}
         {% set status = jurisdiction_status.get(jurisdiction.abbr, {}) %}
+        {% set streams = status.streams or {} %}
         <div class="state-item" data-status="{{ status.status or 'no_data' }}">
             <div class="state-badge {{ status.status or 'no_data' }}"></div>
             <div class="state-info">
                 <strong>{{ jurisdiction.name }} ({{ jurisdiction.abbr }})</strong>
-                {% if status.stats %}
-                <div class="details">
-                    {{ status.stats.total }} submissions |
-                    {{ status.stats.passed }} passed |
-                    {{ status.stats.failed }} failed
+                <div class="stream-icons">
+                    <span class="stream-icon {{ streams.get('nnad', 'no_data') }}" title="NNAD">N</span>
+                    <span class="stream-icon {{ streams.get('mumps', 'no_data') }}" title="Mumps">M</span>
+                    <span class="stream-icon {{ streams.get('nrevss', 'no_data') }}" title="NREVSS">R</span>
                 </div>
-                {% else %}
-                <div class="details">No submissions yet</div>
-                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -383,25 +432,42 @@
                 const name = stateNames[abbr] || 'Unknown';
                 const statusInfo = jurisdictionStatus[abbr] || {};
                 const stats = statusInfo.stats;
+                const streams = statusInfo.streams || {};
+
+                // Stream display names
+                const streamNames = {
+                    'nnad': 'NNAD',
+                    'mumps': 'Mumps',
+                    'nrevss': 'NREVSS'
+                };
+
+                // Status to symbol/class mapping
+                const statusSymbol = (status) => {
+                    switch(status) {
+                        case 'passed': return '<span class="stream-passed">✓ Passed</span>';
+                        case 'passed_with_warnings': return '<span class="stream-warning">⚠ Warnings</span>';
+                        case 'failed': return '<span class="stream-failed">✗ Failed</span>';
+                        default: return '<span class="stream-nodata">— No data</span>';
+                    }
+                };
 
                 let html = `<strong>${name} (${abbr})</strong>`;
 
-                if (stats) {
-                    const statusLabel = {
-                        'passed': 'Healthy',
-                        'passed_with_warnings': 'Warnings',
-                        'failed': 'Critical',
-                        'no_data': 'No Data'
-                    }[statusInfo.status] || statusInfo.status;
+                // Per-stream status section
+                html += '<div class="tooltip-streams">';
+                for (const [streamId, streamName] of Object.entries(streamNames)) {
+                    const streamStatus = streams[streamId] || 'no_data';
+                    html += `<div class="tooltip-stream-row">`;
+                    html += `<span class="tooltip-stream-name">${streamName}</span>`;
+                    html += `<span class="tooltip-stream-status">${statusSymbol(streamStatus)}</span>`;
+                    html += `</div>`;
+                }
+                html += '</div>';
 
-                    html += `<br>Status: ${statusLabel}`;
-                    html += `<br>Total Submissions: ${stats.total}`;
-                    html += `<br>Passed: ${stats.passed} | Failed: ${stats.failed}`;
-                    if (stats.last_submission) {
-                        html += `<br>Last: ${stats.last_submission}`;
-                    }
-                } else {
-                    html += '<br>No submissions yet';
+                if (stats && stats.total > 0) {
+                    html += `<div style="margin-top: 8px; font-size: 12px; opacity: 0.8;">`;
+                    html += `${stats.total} total submissions`;
+                    html += `</div>`;
                 }
 
                 tooltip.html(html)

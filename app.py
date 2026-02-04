@@ -235,6 +235,9 @@ def map_view():
     # Get all jurisdictions
     all_jurisdictions = get_all_jurisdictions()
 
+    # The three data streams we track
+    STREAMS = ['nnad', 'mumps', 'nrevss']
+
     # Get submission status for each jurisdiction
     jurisdiction_status = {}
 
@@ -255,14 +258,27 @@ def map_view():
                 'last_submission': latest.get('timestamp')
             }
 
+            # Per-stream status for this jurisdiction
+            streams = {}
+            for stream_id in STREAMS:
+                stream_subs = [s for s in submissions if s.get('system_id') == stream_id]
+                if stream_subs:
+                    # Get most recent for this stream
+                    latest_stream = stream_subs[0]
+                    streams[stream_id] = latest_stream.get('status', 'no_data')
+                else:
+                    streams[stream_id] = 'no_data'
+
             jurisdiction_status[abbr] = {
                 'status': status,
-                'stats': stats
+                'stats': stats,
+                'streams': streams
             }
         else:
             jurisdiction_status[abbr] = {
                 'status': 'no_data',
-                'stats': None
+                'stats': None,
+                'streams': {stream_id: 'no_data' for stream_id in STREAMS}
             }
 
     return render_template(
