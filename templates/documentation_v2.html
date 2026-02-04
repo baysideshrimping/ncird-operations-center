@@ -454,6 +454,17 @@ if missing:
                             <div class="example-label">✗ Invalid placeholders:</div>
                             <div class="example-bad">condition = "N/A"  or  "TBD"  or  ""  or  "unknown"</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+for field in REQUIRED_FIELDS:
+    if pd.isna(df[field].iloc[idx]) or not str(df[field].iloc[idx]).strip():
+        result.add_error(
+            f"Required field '{field}' is empty",
+            row=idx+2,
+            field=field,
+            doc_link='#nnad-completeness-1-2'
+        )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="nnad-completeness-1-3">
@@ -465,6 +476,18 @@ if missing:
                             If patient died (died=Y), date of death should be provided. If hospitalized (hospitalized=Y),
                             admission date expected. Dependent fields should be complete when primary condition is met.
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if died == 'Y' and 'death_date' in df.columns:
+    death_date = df['death_date'].iloc[idx]
+    if pd.isna(death_date) or not str(death_date).strip():
+        result.add_warning(
+            "Patient died but death_date is missing",
+            row=idx+2,
+            field='death_date',
+            doc_link='#nnad-completeness-1-3'
+        )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="nnad-completeness-1-4">
@@ -475,6 +498,18 @@ if missing:
                         <div class="rule-description">
                             Tracks completeness of optional but important fields (age, sex, race, ethnicity).
                             Warns if >20% missing, as this impacts epidemiological analysis.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+important_fields = ['age_at_case_investigation', 'sex', 'race', 'ethnicity']
+for field in important_fields:
+    if field in df.columns:
+        missing_pct = (df[field].isna().sum() / len(df)) * 100
+        if missing_pct > 20:
+            result.add_warning(
+                f"Field '{field}' is {missing_pct:.1f}% incomplete",
+                doc_link='#nnad-completeness-1-4'
+            )
                         </div>
                     </div>
 
@@ -494,6 +529,24 @@ if missing:
                             <div class="example-label">⚠️ Incomplete:</div>
                             <div class="example-bad">Female age 28, pregnant=blank</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if sex == 'F' and 12 <= age_val <= 50 and not pregnant:
+    result.add_warning(
+        f"Pregnancy status missing for female age {age_val}",
+        row=idx+2,
+        field='pregnant',
+        doc_link='#nnad-completeness-1-5'
+    )
+
+if pregnant == 'Y' and not trimester:
+    result.add_warning(
+        "Pregnancy = Yes but trimester is missing",
+        row=idx+2,
+        field='pregnancy_trimester',
+        doc_link='#nnad-completeness-1-5'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="nnad-completeness-1-6">
@@ -505,6 +558,18 @@ if missing:
                             If outbreak_associated=Y, outbreak_name field should identify the specific outbreak.
                             Essential for linking cases to outbreak investigations.
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if outbreak_str == 'Y' and 'outbreak_name' in df.columns:
+    name = df['outbreak_name'].iloc[idx]
+    if pd.isna(name) or not str(name).strip():
+        result.add_warning(
+            "Outbreak-associated but outbreak_name is missing",
+            row=idx+2,
+            field='outbreak_name',
+            doc_link='#nnad-completeness-1-6'
+        )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="nnad-completeness-1-7">
@@ -515,6 +580,18 @@ if missing:
                         <div class="rule-description">
                             If import_status=IMP (Imported), country_of_exposure should document where patient acquired infection.
                             Critical for tracking international disease transmission patterns.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if status_str == 'IMP' and 'country_of_exposure' in df.columns:
+    country = df['country_of_exposure'].iloc[idx]
+    if pd.isna(country) or not str(country).strip():
+        result.add_warning(
+            "Import status = Imported but country_of_exposure missing",
+            row=idx+2,
+            field='country_of_exposure',
+            doc_link='#nnad-completeness-1-7'
+        )
                         </div>
                     </div>
                 </div>
@@ -553,6 +630,20 @@ if missing:
                             <div class="example-label">✗ Invalid:</div>
                             <div class="example-bad">age=999  |  age=-5  |  age=150</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if 'age_at_case_investigation' in df.columns:
+    for idx, age in enumerate(df['age_at_case_investigation']):
+        if pd.notna(age):
+            is_valid, msg = validate_integer(age, min_val=0, max_val=120)
+            if not is_valid:
+                result.add_error(
+                    f"Invalid age: {msg}",
+                    row=idx+2,
+                    field='age_at_case_investigation',
+                    doc_link='#nnad-accuracy-2-1'
+                )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="nnad-accuracy-2-2">
@@ -564,6 +655,23 @@ if missing:
                             Statistical outliers detected using IQR method (values >3x interquartile range from median).
                             May indicate data entry errors or unusual cases requiring verification.
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+# IQR outlier detection
+Q1 = df[field].quantile(0.25)
+Q3 = df[field].quantile(0.75)
+IQR = Q3 - Q1
+lower_bound = Q1 - 3 * IQR
+upper_bound = Q3 + 3 * IQR
+
+if value < lower_bound or value > upper_bound:
+    result.add_warning(
+        f"Statistical outlier detected: {value}",
+        row=idx+2,
+        field=field,
+        doc_link='#nnad-accuracy-2-2'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="nnad-accuracy-2-3">
@@ -574,6 +682,19 @@ if missing:
                         <div class="rule-description">
                             Excessive decimal places (>2 for percentages, >4 for lab values) may indicate calculation
                             errors or inappropriate precision for biological measurements.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if isinstance(value, float):
+    decimal_places = len(str(value).split('.')[-1]) if '.' in str(value) else 0
+
+    if field_type == 'percentage' and decimal_places > 2:
+        result.add_warning(
+            f"Excessive precision: {value} ({decimal_places} decimals)",
+            row=idx+2,
+            field=field,
+            doc_link='#nnad-accuracy-2-3'
+        )
                         </div>
                     </div>
 
@@ -659,6 +780,20 @@ if onset_date > report_date:
                             If patient died (died=Y) but not hospitalized (hospitalized=N), this is unusual and warrants
                             verification. Most deaths occur in hospital settings.
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if 'died' in df.columns and 'hospitalized' in df.columns:
+    died = str(df['died'].iloc[idx]).upper()
+    hospitalized = str(df['hospitalized'].iloc[idx]).upper()
+
+    if died == 'Y' and hospitalized == 'N':
+        result.add_warning(
+            "Patient died but not hospitalized - verify data",
+            row=idx+2,
+            field='died',
+            doc_link='#nnad-consistency-3-2'
+        )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="nnad-consistency-3-3">
@@ -669,6 +804,20 @@ if onset_date > report_date:
                         <div class="rule-description">
                             Some conditions have age-specific patterns (e.g., congenital conditions in adults,
                             age-related diseases in children). Flags inconsistencies for review.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+# Age-specific condition patterns
+pediatric_conditions = ['Congenital Rubella', 'Neonatal Tetanus']
+adult_conditions = ['Shingles', 'Legionellosis']
+
+if condition in pediatric_conditions and age_val > 18:
+    result.add_warning(
+        f"Pediatric condition in adult (age {age_val})",
+        row=idx+2,
+        field='condition',
+        doc_link='#nnad-consistency-3-3'
+    )
                         </div>
                     </div>
 
@@ -684,6 +833,19 @@ if onset_date > report_date:
                         <div class="rule-examples">
                             <div class="example-label">✗ Invalid:</div>
                             <div class="example-bad">sex=M, pregnant=Y (contradiction)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if 'sex' in df.columns:
+    sex = str(df['sex'].iloc[idx]).upper()
+
+    if pregnant == 'Y' and sex == 'M':
+        result.add_error(
+            "Pregnancy status = Yes for male patient",
+            row=idx+2,
+            field='pregnant',
+            doc_link='#nnad-consistency-3-4'
+        )
                         </div>
                     </div>
 
@@ -728,6 +890,25 @@ if vax_dt > onset_dt:
                             <div class="example-label">⚠️ Verify:</div>
                             <div class="example-bad">case_status=410605003 (Confirmed), lab_result=blank</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if status == '410605003':  # Confirmed
+    has_lab = False
+    lab_fields = ['lab_result', 'specimen_collection_date', 'lab_test_type']
+
+    for field in lab_fields:
+        if field in df.columns and pd.notna(df[field].iloc[idx]):
+            has_lab = True
+            break
+
+    if not has_lab:
+        result.add_warning(
+            "Confirmed case without laboratory data",
+            row=idx+2,
+            field='case_status',
+            doc_link='#nnad-consistency-3-6'
+        )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="nnad-consistency-3-7">
@@ -738,6 +919,18 @@ if vax_dt > onset_dt:
                         <div class="rule-description">
                             Congenital conditions (Congenital Rubella, Congenital Syphilis) are typically diagnosed in infants/young children.
                             Cases with age >2 years are flagged for verification.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+congenital_conditions = ['Congenital Rubella', 'Congenital Syphilis']
+
+if any(cond in condition for cond in congenital_conditions) and age_val > 2:
+    result.add_warning(
+        f"Congenital condition in adult (age {age_val})",
+        row=idx+2,
+        field='condition',
+        doc_link='#nnad-consistency-3-7'
+    )
                         </div>
                     </div>
                 </div>
@@ -806,6 +999,18 @@ if status_str not in CASE_STATUS_CODES:
                             <div class="example-label">✗ Invalid:</div>
                             <div class="example-bad">California | Cal | 06 | ZZ</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if 'reporting_jurisdiction' in df.columns:
+    state_info = validate_state_code(jurisdiction, 'abbr')
+    if not state_info:
+        result.add_error(
+            f"Invalid jurisdiction code: {jurisdiction}",
+            row=idx+2,
+            field='reporting_jurisdiction',
+            doc_link='#nnad-validity-4-2'
+        )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="nnad-validity-4-3">
@@ -843,6 +1048,21 @@ def validate_date_format(date_val):
                             Sex must be M/F/U/O. Age unit must be a/mo/d/h (years/months/days/hours).
                             Warns if non-standard codes used.
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+SEX_CODES = {'M': 'Male', 'F': 'Female', 'U': 'Unknown', 'O': 'Other'}
+AGE_UNITS = {'a': 'Years', 'mo': 'Months', 'd': 'Days', 'h': 'Hours'}
+
+# Sex validation
+is_valid, msg = validate_code_in_list(sex, SEX_CODES.keys(), "Sex")
+if not is_valid:
+    result.add_warning(
+        msg,
+        row=idx+2,
+        field='sex',
+        doc_link='#nnad-validity-4-4'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="nnad-validity-4-5">
@@ -860,6 +1080,27 @@ def validate_date_format(date_val):
                             <div class="example-label">✗ Invalid:</div>
                             <div class="example-bad">pregnant="yes" (must be Y), trimester=second (must be 2)</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+PREGNANCY_STATUS_CODES = {'Y': 'Yes', 'N': 'No', 'U': 'Unknown', 'NA': 'Not Applicable'}
+TRIMESTER_CODES = {'1': 'First', '2': 'Second', '3': 'Third', 'U': 'Unknown'}
+
+if pregnant and pregnant not in PREGNANCY_STATUS_CODES.keys():
+    result.add_error(
+        f"Invalid pregnancy status: {pregnant} (must be Y/N/U/NA)",
+        row=idx+2,
+        field='pregnant',
+        doc_link='#nnad-validity-4-5'
+    )
+
+if trimester not in TRIMESTER_CODES.keys():
+    result.add_error(
+        f"Invalid trimester: {trimester} (must be 1/2/3/U)",
+        row=idx+2,
+        field='pregnancy_trimester',
+        doc_link='#nnad-validity-4-5'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="nnad-validity-4-6">
@@ -870,6 +1111,18 @@ def validate_date_format(date_val):
                         <div class="rule-description">
                             Outbreak_associated field must use Y (Yes), N (No), or U (Unknown).
                             Free text like "true", "outbreak", "yes" are invalid.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+YNU_CODES = {'Y': 'Yes', 'N': 'No', 'U': 'Unknown'}
+
+if outbreak_str not in YNU_CODES.keys():
+    result.add_error(
+        f"Invalid outbreak_associated: {outbreak} (must be Y/N/U)",
+        row=idx+2,
+        field='outbreak_associated',
+        doc_link='#nnad-validity-4-6'
+    )
                         </div>
                     </div>
 
@@ -887,6 +1140,23 @@ def validate_date_format(date_val):
                             <div class="example-good">import_status=IMP (case traveled from endemic country)</div>
                             <div class="example-label">✗ Invalid:</div>
                             <div class="example-bad">import_status="imported" (use IMP code)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+IMPORT_STATUS_CODES = {
+    'IMP': 'Imported',
+    'IND': 'Import-related',
+    'INC': 'Indigenous',
+    'UNK': 'Unknown'
+}
+
+if status_str not in IMPORT_STATUS_CODES.keys():
+    result.add_error(
+        f"Invalid import status: {status}",
+        row=idx+2,
+        field='import_status',
+        doc_link='#nnad-validity-4-7'
+    )
                         </div>
                     </div>
                 </div>
@@ -925,6 +1195,21 @@ def validate_date_format(date_val):
                             <div class="example-label">⚠️ Delayed:</div>
                             <div class="example-bad">Onset: 2025-12-01 → Report: 2026-01-15 (45 days)</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+onset_dt = pd.to_datetime(onset)
+report_dt = pd.to_datetime(report)
+
+lag_days = (report_dt - onset_dt).days
+
+if lag_days > 14:
+    result.add_warning(
+        f"Reporting lag = {lag_days} days (>14 days may delay outbreak detection)",
+        row=idx+2,
+        field='report_date',
+        doc_link='#nnad-timeliness-5-1'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="nnad-timeliness-5-2">
@@ -940,6 +1225,21 @@ def validate_date_format(date_val):
                             <div class="example-label">✗ Invalid:</div>
                             <div class="example-bad">report_date: 2027-01-01 (if today is 2026-02-03)</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+from datetime import datetime
+
+today = datetime.now().date()
+date_val = pd.to_datetime(date_field).date()
+
+if date_val > today:
+    result.add_error(
+        f"{field} is in the future: {date_val}",
+        row=idx+2,
+        field=field,
+        doc_link='#nnad-timeliness-5-2'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="nnad-timeliness-5-3">
@@ -950,6 +1250,23 @@ def validate_date_format(date_val):
                         <div class="rule-description">
                             Cases with onset dates >2 years old may be historical backfill or data cleanup.
                             Flagged for verification.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+from datetime import datetime
+
+today = datetime.now().date()
+onset_dt = pd.to_datetime(onset).date()
+
+years_old = (today - onset_dt).days / 365.25
+
+if years_old > 2:
+    result.add_warning(
+        f"Onset date is {years_old:.1f} years old - historical case?",
+        row=idx+2,
+        field='illness_onset_date',
+        doc_link='#nnad-timeliness-5-3'
+    )
                         </div>
                     </div>
 
@@ -1018,6 +1335,18 @@ if invest_lag > 3:
                                 Row 5: CA, Mumps, 410605003, 2026-01-10 (exact match)
                             </div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+# Check for exact duplicate rows
+duplicates = df[df.duplicated(keep=False)]
+
+if len(duplicates) > 0:
+    dup_rows = duplicates.index.tolist()
+    result.add_warning(
+        f"Exact duplicate rows found: {len(duplicates)} rows",
+        doc_link='#nnad-uniqueness-6-1'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="nnad-uniqueness-6-2">
@@ -1036,7 +1365,10 @@ has_dups, dup_indices, msg = check_duplicate_rows(
     subset=['reporting_jurisdiction', 'condition', 'illness_onset_date']
 )
 if has_dups:
-    result.add_warning(f"Possible duplicate cases: {msg}")
+    result.add_warning(
+        f"Possible duplicate cases: {msg}",
+        doc_link='#nnad-uniqueness-6-2'
+    )
                         </div>
                     </div>
 
@@ -1048,6 +1380,21 @@ if has_dups:
                         <div class="rule-description">
                             Checks for cases appearing in multiple weekly submissions.
                             May indicate re-reporting of same case vs. new episode.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+# Cross-submission deduplication (requires historical data)
+if previous_submissions:
+    key_fields = ['reporting_jurisdiction', 'condition', 'birth_date', 'sex']
+    current_keys = df[key_fields].apply(tuple, axis=1)
+    previous_keys = previous_df[key_fields].apply(tuple, axis=1)
+
+    cross_dups = current_keys.isin(previous_keys)
+    if cross_dups.any():
+        result.add_warning(
+            f"Possible re-submission: {cross_dups.sum()} cases match previous submission",
+            doc_link='#nnad-uniqueness-6-3'
+        )
                         </div>
                     </div>
                 </div>
@@ -1091,6 +1438,21 @@ if has_dups:
                             <div class="example-label">✗ Invalid:</div>
                             <div class="example-bad">Missing lab_result or parotitis column</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+REQUIRED_FIELDS = [
+    'condition', 'reporting_jurisdiction', 'case_status',
+    'report_date', 'illness_onset_date', 'parotitis', 'lab_result'
+]
+
+missing = [col for col in REQUIRED_FIELDS if col not in df.columns]
+
+if missing:
+    result.add_error(
+        f"Missing required mumps fields: {', '.join(missing)}",
+        doc_link='#mumps-completeness-1-1'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="mumps-completeness-1-2">
@@ -1100,6 +1462,24 @@ if has_dups:
                         </div>
                         <div class="rule-description">
                             If parotitis=Y, expect parotitis_duration. If complications reported, expect hospitalization status.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if parotitis == 'Y' and (pd.isna(duration) or duration == 0):
+    result.add_warning(
+        "Parotitis is Yes but duration is missing/zero",
+        row=idx+2,
+        field='parotitis_duration_days',
+        doc_link='#mumps-completeness-1-2'
+    )
+
+if pd.isna(parotitis):
+    result.add_warning(
+        "Parotitis value is missing",
+        row=idx+2,
+        field='parotitis',
+        doc_link='#mumps-completeness-1-2'
+    )
                         </div>
                     </div>
 
@@ -1112,6 +1492,18 @@ if has_dups:
                             If outbreak_associated=Y, outbreak_name should identify the specific outbreak investigation.
                             Essential for linking cases in MVPS.
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if outbreak_str == 'Y' and 'outbreak_name' in df.columns:
+    name = df['outbreak_name'].iloc[idx]
+    if pd.isna(name) or not str(name).strip():
+        result.add_warning(
+            "Outbreak-associated but outbreak_name missing",
+            row=idx+2,
+            field='outbreak_name',
+            doc_link='#mumps-completeness-1-3'
+        )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="mumps-completeness-1-4">
@@ -1122,6 +1514,18 @@ if has_dups:
                         <div class="rule-description">
                             If import_status=Imported, travel_history should document country/region of acquisition.
                             Critical for tracking international mumps transmission.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if status_str in ['IMP', 'IMPORTED'] and 'travel_history' in df.columns:
+    travel = df['travel_history'].iloc[idx]
+    if pd.isna(travel) or not str(travel).strip():
+        result.add_warning(
+            "Import status=Imported but travel_history missing",
+            row=idx+2,
+            field='travel_history',
+            doc_link='#mumps-completeness-1-4'
+        )
                         </div>
                     </div>
                 </div>
@@ -1230,6 +1634,23 @@ if lab_result_str not in LAB_RESULT_CODES:
                             Parotitis field must be Y (Yes), N (No), or U (Unknown).
                             Free text like "yes", "true", "1" are flagged.
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+YNU_VALUES = {'Y': 'Yes', 'N': 'No', 'U': 'Unknown'}
+
+is_valid, msg = validate_code_in_list(
+    str(parotitis).upper(),
+    YNU_VALUES.keys(),
+    "Parotitis"
+)
+if not is_valid:
+    result.add_error(
+        msg,
+        row=idx+2,
+        field='parotitis',
+        doc_link='#mumps-validity-4-2'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="mumps-validity-4-3">
@@ -1247,6 +1668,20 @@ if lab_result_str not in LAB_RESULT_CODES:
                             <div class="example-label">⚠️ Inconsistent:</div>
                             <div class="example-bad">genotype=G, lab_result=260385009 (Negative)</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+MUMPS_GENOTYPES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'N', 'UNK']
+
+genotype_str = str(genotype).strip().upper()
+
+if genotype_str and genotype_str not in MUMPS_GENOTYPES:
+    result.add_warning(
+        f"Non-standard genotype: {genotype} (expected: A-L, N, or UNK)",
+        row=idx+2,
+        field='genotype',
+        doc_link='#mumps-validity-4-3'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="mumps-validity-4-4">
@@ -1256,6 +1691,18 @@ if lab_result_str not in LAB_RESULT_CODES:
                         </div>
                         <div class="rule-description">
                             Outbreak_associated must be Y/N/U. Free text values cause MVPS processing errors.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+YNU_CODES = {'Y': 'Yes', 'N': 'No', 'U': 'Unknown'}
+
+if outbreak_str not in YNU_CODES.keys():
+    result.add_error(
+        f"Invalid outbreak_associated: {outbreak} (must be Y/N/U)",
+        row=idx+2,
+        field='outbreak_associated',
+        doc_link='#mumps-validity-4-4'
+    )
                         </div>
                     </div>
 
@@ -1268,6 +1715,18 @@ if lab_result_str not in LAB_RESULT_CODES:
                             Recommend standard codes: IMP (Imported), IND (Import-related), INC (Indigenous), UNK (Unknown).
                             Standardizes tracking of international vs domestic mumps transmission.
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+valid_import = ['IMP', 'IND', 'INC', 'UNK', 'IMPORTED', 'INDIGENOUS', 'IMPORT-RELATED', 'UNKNOWN']
+
+if status_str not in valid_import:
+    result.add_warning(
+        f"Non-standard import status: {status} (recommend: IMP/IND/INC/UNK)",
+        row=idx+2,
+        field='import_status',
+        doc_link='#mumps-validity-4-5'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="mumps-validity-4-6">
@@ -1278,6 +1737,22 @@ if lab_result_str not in LAB_RESULT_CODES:
                         <div class="rule-description">
                             All dates must follow YYYY-MM-DD format (ISO 8601).
                             Prevents MVPS processing errors from inconsistent date formats.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+date_fields = ['report_date', 'illness_onset_date',
+               'specimen_collection_date', 'lab_result_date']
+
+for field in date_fields:
+    if field in df.columns and pd.notna(date_val):
+        is_valid, msg = validate_date_format(date_val)
+        if not is_valid:
+            result.add_error(
+                f"{field}: {msg}",
+                row=idx+2,
+                field=field,
+                doc_link='#mumps-validity-4-6'
+            )
                         </div>
                     </div>
                 </div>
@@ -1358,6 +1833,28 @@ if days_from_onset < 3:
                             <div class="example-label">⚠️ Review:</div>
                             <div class="example-bad">parotitis=N, lab=Positive (asymptomatic?)</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+parotitis = str(df['parotitis'].iloc[idx]).upper()
+
+# Confirmed case should have positive lab result
+if status == '410605003' and lab != '10828004':
+    result.add_warning(
+        "Case is Confirmed but lab result is not Positive",
+        row=idx+2,
+        field='case_status',
+        doc_link='#mumps-consistency-3-1'
+    )
+
+# Parotitis = No but lab positive
+if parotitis == 'N' and pd.notna(duration) and duration > 0:
+    result.add_warning(
+        "Parotitis is No but duration > 0",
+        row=idx+2,
+        field='parotitis_duration_days',
+        doc_link='#mumps-consistency-3-1'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="mumps-consistency-3-2">
@@ -1368,6 +1865,19 @@ if days_from_onset < 3:
                         <div class="rule-description">
                             Specimen collection date must be before or same as lab result date.
                             Cannot get results before collecting specimen.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+collection_dt = pd.to_datetime(collection)
+result_dt = pd.to_datetime(result_date)
+
+if collection_dt > result_dt:
+    result.add_error(
+        "Specimen collection date after result date",
+        row=idx+2,
+        field='specimen_collection_date',
+        doc_link='#mumps-consistency-3-2'
+    )
                         </div>
                     </div>
 
@@ -1385,6 +1895,20 @@ if days_from_onset < 3:
                             <div class="example-good">parotitis=Y, duration=7 days</div>
                             <div class="example-label">⚠️ Does not meet:</div>
                             <div class="example-bad">parotitis=Y, duration=1 day (insufficient for case definition)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if 'parotitis' in df.columns:
+    parotitis = str(df['parotitis'].iloc[idx]).upper()
+    duration_val = int(duration)
+
+    if parotitis == 'Y' and duration_val < 2:
+        result.add_warning(
+            f"Parotitis duration {duration_val} day(s) does not meet clinical case definition (≥2 days)",
+            row=idx+2,
+            field='parotitis_duration_days',
+            doc_link='#mumps-consistency-3-3'
+        )
                         </div>
                     </div>
 
@@ -1422,6 +1946,24 @@ if orchitis == 'Y' and sex == 'F':
                         <div class="rule-description">
                             Severe complications (encephalitis, meningitis, pancreatitis) typically require hospitalization.
                             Cases with severe complications but hospitalized=N are flagged for verification.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+severe_comps = []
+if 'encephalitis' in df.columns and str(df['encephalitis'].iloc[idx]).upper() == 'Y':
+    severe_comps.append('encephalitis')
+if 'meningitis' in df.columns and str(df['meningitis'].iloc[idx]).upper() == 'Y':
+    severe_comps.append('meningitis')
+if 'pancreatitis' in df.columns and str(df['pancreatitis'].iloc[idx]).upper() == 'Y':
+    severe_comps.append('pancreatitis')
+
+if severe_comps and hospitalized == 'N':
+    result.add_warning(
+        f"Severe complications ({', '.join(severe_comps)}) but not hospitalized",
+        row=idx+2,
+        field='hospitalized',
+        doc_link='#mumps-consistency-3-5'
+    )
                         </div>
                     </div>
                 </div>
@@ -1464,6 +2006,21 @@ if orchitis == 'Y' and sex == 'F':
                             <div class="example-label">✗ Invalid:</div>
                             <div class="example-bad">Missing virus_type or reporting_week column</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+REQUIRED_FIELDS = [
+    'reporting_week', 'reporting_lab', 'state',
+    'total_specimens_tested', 'virus_type'
+]
+
+missing = [col for col in REQUIRED_FIELDS if col not in df.columns]
+
+if missing:
+    result.add_error(
+        f"Missing required NREVSS fields: {', '.join(missing)}",
+        doc_link='#nrevss-completeness-1-1'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="nrevss-completeness-1-2">
@@ -1474,6 +2031,20 @@ if orchitis == 'Y' and sex == 'F':
                         <div class="rule-description">
                             At least one result field required: positive_results, negative_results, or percent_positive.
                             Cannot submit report without test results.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+VIRUS_RESULT_FIELDS = [
+    'positive_results', 'negative_results', 'percent_positive'
+]
+
+result_present = [col for col in VIRUS_RESULT_FIELDS if col in df.columns]
+
+if len(result_present) == 0:
+    result.add_error(
+        "No virus result fields found",
+        doc_link='#nrevss-completeness-1-2'
+    )
                         </div>
                     </div>
                 </div>
@@ -1501,6 +2072,17 @@ if orchitis == 'Y' and sex == 'F':
                         <div class="rule-description">
                             Reporting week is required for all laboratory reports.
                             Links surveillance data to CDC MMWR week for temporal analysis.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if 'reporting_week' in df.columns:
+    if pd.isna(week):
+        result.add_error(
+            "Reporting week is missing",
+            row=idx+2,
+            field='reporting_week',
+            doc_link='#nrevss-completeness-1-1'
+        )
                         </div>
                     </div>
                 </div>
@@ -1565,6 +2147,23 @@ if not re.match(r'^\d{4}-W\d{2}$', week_str):
                             <div class="example-label">⚠️ Unexpected:</div>
                             <div class="example-bad">Flu | COVID | Para-1 (use standard names)</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+VIRUS_TYPES = [
+    'RSV', 'Influenza A', 'Influenza B',
+    'Parainfluenza 1', 'Parainfluenza 2', 'Parainfluenza 3', 'Parainfluenza 4',
+    'Adenovirus', 'Rhinovirus', 'Enterovirus',
+    'Human Metapneumovirus', 'Coronavirus (non-COVID)', 'SARS-CoV-2'
+]
+
+if virus not in VIRUS_TYPES:
+    result.add_warning(
+        f"Unexpected virus type: {virus}",
+        row=idx+2,
+        field='virus_type',
+        doc_link='#nrevss-validity-4-2'
+    )
+                        </div>
                     </div>
 
                     <div class="rule-card error" id="nrevss-validity-4-3">
@@ -1574,6 +2173,18 @@ if not re.match(r'^\d{4}-W\d{2}$', week_str):
                         </div>
                         <div class="rule-description">
                             State must be valid 2-letter US state/territory abbreviation (50 states + DC, PR, VI, GU, AS, MP).
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if 'state' in df.columns:
+    state_info = validate_state_code(state, 'abbr')
+    if not state_info:
+        result.add_error(
+            f"Invalid state code: {state}",
+            row=idx+2,
+            field='state',
+            doc_link='#nrevss-validity-4-3'
+        )
                         </div>
                     </div>
                 </div>
@@ -1608,6 +2219,18 @@ if not re.match(r'^\d{4}-W\d{2}$', week_str):
                             <div class="example-label">✗ Invalid:</div>
                             <div class="example-bad">total_specimens_tested: 5230000 (likely typo)</div>
                         </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if 'total_specimens_tested' in df.columns:
+    is_valid, msg = validate_integer(total, min_val=0, max_val=100000)
+    if not is_valid:
+        result.add_error(
+            f"Total specimens: {msg}",
+            row=idx+2,
+            field='total_specimens_tested',
+            doc_link='#nrevss-accuracy-2-1'
+        )
+                        </div>
                     </div>
 
                     <div class="rule-card warning" id="nrevss-accuracy-2-2">
@@ -1618,6 +2241,18 @@ if not re.match(r'^\d{4}-W\d{2}$', week_str):
                         <div class="rule-description">
                             Less than 10 specimens tested is unusually low for weekly aggregate reporting.
                             May indicate incomplete data or partial week reporting. Verify with lab.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if 'total_specimens_tested' in df.columns:
+    total_val = int(total)
+    if total_val < 10:
+        result.add_warning(
+            f"Very low specimen count ({total_val}) - verify data",
+            row=idx+2,
+            field='total_specimens_tested',
+            doc_link='#nrevss-accuracy-2-2'
+        )
                         </div>
                     </div>
 
@@ -1634,6 +2269,28 @@ if not re.match(r'^\d{4}-W\d{2}$', week_str):
                             <div class="example-label">✗ Invalid:</div>
                             <div class="example-bad">positive_results: -5 (cannot be negative)</div>
                             <div class="example-bad">percent_positive: 150 (exceeds 100%)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+# Positive results validation
+is_valid, msg = validate_integer(positive, min_val=0)
+if not is_valid:
+    result.add_error(
+        f"Positive results: {msg}",
+        row=idx+2,
+        field='positive_results',
+        doc_link='#nrevss-accuracy-2-3'
+    )
+
+# Percent positive validation
+is_valid, msg = validate_percentage(pct)
+if not is_valid:
+    result.add_error(
+        f"Percent positive: {msg}",
+        row=idx+2,
+        field='percent_positive',
+        doc_link='#nrevss-accuracy-2-3'
+    )
                         </div>
                     </div>
                 </div>
@@ -1693,6 +2350,20 @@ if pos_val + neg_val != total_val:
                             <div class="example-good">45/523 × 100 = 8.6%, reported: 8.6%</div>
                             <div class="example-label">⚠️ Mismatch:</div>
                             <div class="example-bad">45/523 × 100 = 8.6%, reported: 12.5%</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if total_val > 0:
+    calculated_pct = round((pos_val / total_val) * 100, 1)
+
+    # Allow small rounding differences
+    if abs(calculated_pct - reported_pct_val) > 0.2:
+        result.add_warning(
+            f"Percent positive mismatch: Reported {reported_pct_val}%, Calculated {calculated_pct}%",
+            row=idx+2,
+            field='percent_positive',
+            doc_link='#nrevss-consistency-3-2'
+        )
                         </div>
                     </div>
                 </div>
