@@ -12,6 +12,8 @@ This application was designed from the ground up with two key principles:
 
 ## Recent Updates
 
+- **Interactive Geographic Map** - D3.js SVG map with color-coded states showing submission status (healthy/warning/critical), hover tooltips, and filterable jurisdiction grid
+- **Auto-jurisdiction Detection** - Uploads automatically appear on the map by extracting state codes from data fields (`reporting_jurisdiction`, `state`) or filenames
 - **Templates & Data Dictionaries** - Downloadable CSV templates and field specifications for all data streams
 - **Standards & References** - Links to official CDC Message Mapping Guides (MMGs) and documentation
 - **Clickable Validation Documentation** - 62 of 67 validation rules (93%) now link directly to source code with line-by-line explanations
