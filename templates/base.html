@@ -75,6 +75,33 @@
             max-width: 1400px;
             margin: 2rem auto;
             padding: 0 2rem;
+            position: relative;
+        }
+
+        /* Demo watermark - appears on white content areas */
+        .container::before {
+            content: "DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION  •  DEMO  •  NOT FOR PRODUCTION";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.04);
+            transform: rotate(-25deg);
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            line-height: 3;
+            letter-spacing: 2px;
+            background-repeat: repeat;
+        }
+
+        .container > * {
+            position: relative;
+            z-index: 1;
         }
 
         /* Flash messages */
