@@ -235,8 +235,8 @@ def map_view():
     # Get all jurisdictions
     all_jurisdictions = get_all_jurisdictions()
 
-    # The three data streams we track
-    STREAMS = ['nnad', 'mumps', 'nrevss']
+    # Only jurisdiction-submitted streams shown on map (not lab-based like NREVSS)
+    STREAMS = ['nnad', 'mumps']
 
     # Get submission status for each jurisdiction
     jurisdiction_status = {}

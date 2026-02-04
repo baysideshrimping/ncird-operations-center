@@ -278,6 +278,14 @@
     </div>
 </div>
 
+<div class="card" style="background: #f0f9ff; border-left: 4px solid #0284c7; margin-bottom: 1.5rem;">
+    <p style="margin: 0; color: #0c4a6e;">
+        <strong>Note:</strong> This map displays data streams submitted directly by state and territorial health departments (NNAD, Mumps).
+        Laboratory-based surveillance data (NREVSS) is not shown here as it is submitted by clinical and public health laboratories, not jurisdictions.
+        NREVSS data can still be submitted and validated through the system.
+    </p>
+</div>
+
 {% set passed_count = namespace(value=0) %}
 {% set warning_count = namespace(value=0) %}
 {% set failed_count = namespace(value=0) %}
@@ -329,7 +337,7 @@
 <div class="state-grid-section">
     <h3>Jurisdiction Details</h3>
     <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
-        Stream status: <strong>N</strong>=NNAD <strong>M</strong>=Mumps <strong>R</strong>=NREVSS
+        Stream status: <strong>N</strong>=NNAD <strong>M</strong>=Mumps
         &nbsp;|&nbsp;
         <span style="color: #166534;">■</span> Passed
         <span style="color: #92400e;">■</span> Warnings
@@ -354,7 +362,6 @@
                 <div class="stream-icons">
                     <span class="stream-icon {{ streams.get('nnad', 'no_data') }}" title="NNAD">N</span>
                     <span class="stream-icon {{ streams.get('mumps', 'no_data') }}" title="Mumps">M</span>
-                    <span class="stream-icon {{ streams.get('nrevss', 'no_data') }}" title="NREVSS">R</span>
                 </div>
             </div>
         </div>
@@ -434,11 +441,10 @@
                 const stats = statusInfo.stats;
                 const streams = statusInfo.streams || {};
 
-                // Stream display names
+                // Stream display names (only jurisdiction-submitted streams)
                 const streamNames = {
                     'nnad': 'NNAD',
-                    'mumps': 'Mumps',
-                    'nrevss': 'NREVSS'
+                    'mumps': 'Mumps'
                 };
 
                 // Status to symbol/class mapping
