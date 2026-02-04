@@ -78,7 +78,10 @@ class NNADValidator(BaseValidator):
         missing_required = [col for col in self.REQUIRED_FIELDS if col not in df.columns]
 
         if missing_required:
-            result.add_error(f"Missing required fields: {', '.join(missing_required)}")
+            result.add_error(
+                f"Missing required fields: {', '.join(missing_required)}",
+                doc_link='#nnad-completeness-1-1'
+            )
             return
 
         # Log optional fields present
@@ -141,7 +144,12 @@ class NNADValidator(BaseValidator):
                 if pd.notna(age):
                     is_valid, msg = validate_integer(age, min_val=0, max_val=120)
                     if not is_valid:
-                        result.add_error(f"Invalid age: {msg}", row=idx+2, field='age_at_case_investigation')
+                        result.add_error(
+                            f"Invalid age: {msg}",
+                            row=idx+2,
+                            field='age_at_case_investigation',
+                            doc_link='#nnad-accuracy-2-1'
+                        )
 
         # Age unit validation
         if 'age_unit' in df.columns:
@@ -186,7 +194,8 @@ class NNADValidator(BaseValidator):
                             result.add_error(
                                 "Illness onset date cannot be after report date",
                                 row=idx+2,
-                                field='illness_onset_date'
+                                field='illness_onset_date',
+                                doc_link='#nnad-consistency-3-1'
                             )
                     except:
                         pass  # Already caught in date validation
@@ -202,7 +211,8 @@ class NNADValidator(BaseValidator):
                     result.add_warning(
                         "Patient died but not hospitalized - verify data",
                         row=idx+2,
-                        field='died'
+                        field='died',
+                        doc_link='#nnad-consistency-3-2'
                     )
 
         # Summary info

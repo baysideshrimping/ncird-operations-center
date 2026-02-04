@@ -415,7 +415,7 @@
                 </p>
 
                 <div class="rule-grid">
-                    <div class="rule-card error">
+                    <div class="rule-card error" id="nnad-completeness-1-1">
                         <div class="rule-header">
                             <span class="rule-title">1.1 Required Fields Must Exist</span>
                             <span class="severity-badge severity-error">ERROR</span>
@@ -441,7 +441,7 @@ if missing:
                         </div>
                     </div>
 
-                    <div class="rule-card error">
+                    <div class="rule-card error" id="nnad-completeness-1-2">
                         <div class="rule-header">
                             <span class="rule-title">1.2 Required Values Cannot Be Empty</span>
                             <span class="severity-badge severity-error">ERROR</span>
@@ -456,7 +456,7 @@ if missing:
                         </div>
                     </div>
 
-                    <div class="rule-card warning">
+                    <div class="rule-card warning" id="nnad-completeness-1-3">
                         <div class="rule-header">
                             <span class="rule-title">1.3 Conditional Completeness</span>
                             <span class="severity-badge severity-warning">WARNING</span>
@@ -467,7 +467,7 @@ if missing:
                         </div>
                     </div>
 
-                    <div class="rule-card warning">
+                    <div class="rule-card warning" id="nnad-completeness-1-4">
                         <div class="rule-header">
                             <span class="rule-title">1.4 Optional Field Completeness Rate</span>
                             <span class="severity-badge severity-warning">WARNING</span>
@@ -498,7 +498,7 @@ if missing:
                 </p>
 
                 <div class="rule-grid">
-                    <div class="rule-card error">
+                    <div class="rule-card error" id="nnad-accuracy-2-1">
                         <div class="rule-header">
                             <span class="rule-title">2.1 Age Plausibility</span>
                             <span class="severity-badge severity-error">ERROR</span>
@@ -515,7 +515,7 @@ if missing:
                         </div>
                     </div>
 
-                    <div class="rule-card warning">
+                    <div class="rule-card warning" id="nnad-accuracy-2-2">
                         <div class="rule-header">
                             <span class="rule-title">2.2 Outlier Detection</span>
                             <span class="severity-badge severity-warning">WARNING</span>
@@ -526,7 +526,7 @@ if missing:
                         </div>
                     </div>
 
-                    <div class="rule-card error">
+                    <div class="rule-card error" id="nnad-accuracy-2-3">
                         <div class="rule-header">
                             <span class="rule-title">2.3 Numeric Precision</span>
                             <span class="severity-badge severity-warning">WARNING</span>
@@ -557,7 +557,7 @@ if missing:
                 </p>
 
                 <div class="rule-grid">
-                    <div class="rule-card error">
+                    <div class="rule-card error" id="nnad-consistency-3-1">
                         <div class="rule-header">
                             <span class="rule-title">3.1 Date Sequence Logic</span>
                             <span class="severity-badge severity-error">ERROR</span>
@@ -583,7 +583,7 @@ if onset_date > report_date:
                         </div>
                     </div>
 
-                    <div class="rule-card warning">
+                    <div class="rule-card warning" id="nnad-consistency-3-2">
                         <div class="rule-header">
                             <span class="rule-title">3.2 Hospitalization Death Logic</span>
                             <span class="severity-badge severity-warning">WARNING</span>
@@ -594,7 +594,7 @@ if onset_date > report_date:
                         </div>
                     </div>
 
-                    <div class="rule-card error">
+                    <div class="rule-card error" id="nnad-consistency-3-3">
                         <div class="rule-header">
                             <span class="rule-title">3.3 Age-Condition Consistency</span>
                             <span class="severity-badge severity-warning">WARNING</span>
@@ -609,27 +609,640 @@ if onset_date > report_date:
         </div>
     </div>
 
-    <!-- Additional dimensions continued... (Validity, Timeliness, Uniqueness) -->
-    <!-- Truncated for brevity but following same pattern -->
+    <!-- Validity -->
+    <div class="accordion" id="validity">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">✔️</span>
+                <span>4. VALIDITY - Format and Code Compliance</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <p style="color: #666; margin-bottom: 1.5rem;">
+                    Data must conform to defined formats, code sets, and standards (SNOMED CT, FIPS codes, ISO 8601 dates).
+                </p>
+
+                <div class="rule-grid">
+                    <div class="rule-card error" id="nnad-validity-4-1">
+                        <div class="rule-header">
+                            <span class="rule-title">4.1 SNOMED CT Case Status Codes</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Case status must use valid SNOMED CT codes from the approved value set.
+                            Free text or numeric codes not in the value set are rejected.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid codes:</div>
+                            <div class="example-good">410605003 (Confirmed) | 2931005 (Probable) | 415684004 (Suspected) | PHC1464 (Not a case)</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">"confirmed" | "probable" | 999 | blank</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+CASE_STATUS_CODES = {
+    '410605003': 'Confirmed',
+    '2931005': 'Probable',
+    '415684004': 'Suspected',
+    'PHC1464': 'Not a case'
+}
+
+status_str = str(status).strip()
+if status_str not in CASE_STATUS_CODES:
+    result.add_error("Invalid case status code", field='case_status')
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nnad-validity-4-2">
+                        <div class="rule-header">
+                            <span class="rule-title">4.2 Jurisdiction Codes (FIPS)</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Reporting jurisdiction must be a valid 2-letter US state/territory abbreviation.
+                            Includes 50 states + DC, PR, VI, GU, AS, MP.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">CA, TX, NY, DC, PR, VI</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">California | Cal | 06 | ZZ</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nnad-validity-4-3">
+                        <div class="rule-header">
+                            <span class="rule-title">4.3 Date Format (ISO 8601)</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            All dates must follow YYYY-MM-DD format (ISO 8601 standard).
+                            Other formats (MM/DD/YYYY, DD-MMM-YYYY) are rejected for consistency.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">2026-01-15 | 2025-12-31</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">01/15/2026 | 15-Jan-2026 | 1/15/26</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+def validate_date_format(date_val):
+    try:
+        pd.to_datetime(date_val, format='%Y-%m-%d')
+        return True, "Valid"
+    except:
+        return False, "Must be YYYY-MM-DD format"
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nnad-validity-4-4">
+                        <div class="rule-header">
+                            <span class="rule-title">4.4 Sex/Age Unit Code Sets</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Sex must be M/F/U/O. Age unit must be a/mo/d/h (years/months/days/hours).
+                            Warns if non-standard codes used.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeliness -->
+    <div class="accordion" id="timeliness">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">⏱️</span>
+                <span>5. TIMELINESS - Reporting Windows</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <p style="color: #666; margin-bottom: 1.5rem;">
+                    Data must be submitted within expected timeframes to enable timely public health response.
+                </p>
+
+                <div class="rule-grid">
+                    <div class="rule-card warning" id="nnad-timeliness-5-1">
+                        <div class="rule-header">
+                            <span class="rule-title">5.1 Reporting Lag</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Cases should be reported within 7 days of illness onset (varies by disease).
+                            Long delays reduce outbreak detection capability.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Acceptable:</div>
+                            <div class="example-good">Onset: 2026-01-10 → Report: 2026-01-12 (2 days)</div>
+                            <div class="example-label">⚠️ Delayed:</div>
+                            <div class="example-bad">Onset: 2025-12-01 → Report: 2026-01-15 (45 days)</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nnad-timeliness-5-2">
+                        <div class="rule-header">
+                            <span class="rule-title">5.2 Future Dates Prohibited</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Report dates, onset dates, and investigation dates cannot be in the future.
+                            Future dates indicate data entry errors.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">report_date: 2027-01-01 (if today is 2026-02-03)</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nnad-timeliness-5-3">
+                        <div class="rule-header">
+                            <span class="rule-title">5.3 Stale Data Warning</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Cases with onset dates >2 years old may be historical backfill or data cleanup.
+                            Flagged for verification.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Uniqueness -->
+    <div class="accordion" id="uniqueness">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">🔑</span>
+                <span>6. UNIQUENESS - Duplicate Detection</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <p style="color: #666; margin-bottom: 1.5rem;">
+                    Each case should appear only once to prevent double-counting in incidence calculations.
+                </p>
+
+                <div class="rule-grid">
+                    <div class="rule-card warning" id="nnad-uniqueness-6-1">
+                        <div class="rule-header">
+                            <span class="rule-title">6.1 Exact Duplicate Rows</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Identical rows across all fields indicate copy-paste errors or accidental resubmission.
+                            Warns if exact duplicates found.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✗ Duplicate:</div>
+                            <div class="example-bad">
+                                Row 2: CA, Mumps, 410605003, 2026-01-10<br>
+                                Row 5: CA, Mumps, 410605003, 2026-01-10 (exact match)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nnad-uniqueness-6-2">
+                        <div class="rule-header">
+                            <span class="rule-title">6.2 Same Patient/Condition/Date</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Multiple cases with same jurisdiction + condition + onset date may be duplicates.
+                            Could also be legitimate outbreak cluster - requires verification.
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+has_dups, dup_indices, msg = check_duplicate_rows(
+    df,
+    subset=['reporting_jurisdiction', 'condition', 'illness_onset_date']
+)
+if has_dups:
+    result.add_warning(f"Possible duplicate cases: {msg}")
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nnad-uniqueness-6-3">
+                        <div class="rule-header">
+                            <span class="rule-title">6.3 Cross-Submission Deduplication</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Checks for cases appearing in multiple weekly submissions.
+                            May indicate re-reporting of same case vs. new episode.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
-<!-- Mumps System Content (Similar structure) -->
+<!-- Mumps System Content -->
 <div id="mumps-content" class="system-content">
     <h3 style="color: #1e3a5f; margin: 2rem 0 1rem;">Mumps Disease Surveillance (MMG v1.0.2)</h3>
     <p style="color: #666; margin-bottom: 2rem;">
-        Mumps-specific validations with clinical and laboratory criteria...
+        Mumps-specific validations with clinical criteria (parotitis) and laboratory confirmation (IgM, PCR).
     </p>
-    <!-- Similar accordion structure for Mumps -->
+
+    <!-- Completeness -->
+    <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">✓</span>
+                <span>1. COMPLETENESS - Mumps Required Fields</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <div class="rule-grid">
+                    <div class="rule-card error" id="mumps-completeness-1-1">
+                        <div class="rule-header">
+                            <span class="rule-title">1.1 Core Mumps Fields</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Required: patient_id, reporting_jurisdiction, case_status, report_date, parotitis,
+                            lab_result, specimen_collection_date.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">All required columns present in CSV</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">Missing lab_result or parotitis column</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="mumps-completeness-1-2">
+                        <div class="rule-header">
+                            <span class="rule-title">1.2 Clinical Completeness</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            If parotitis=Y, expect parotitis_duration. If complications reported, expect hospitalization status.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validity -->
+    <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">✔️</span>
+                <span>4. VALIDITY - Laboratory Codes</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <div class="rule-grid">
+                    <div class="rule-card error" id="mumps-validity-4-1">
+                        <div class="rule-header">
+                            <span class="rule-title">4.1 Lab Result SNOMED CT Codes</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Laboratory results must use approved SNOMED CT codes for mumps IgM/PCR testing.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid codes:</div>
+                            <div class="example-good">
+                                10828004 (Positive) | 260385009 (Negative) |
+                                260373001 (Detected) | 419984006 (Inconclusive)
+                            </div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">"positive" | "neg" | 1 | blank</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+LAB_RESULT_CODES = {
+    '10828004': 'Positive',
+    '260385009': 'Negative',
+    '260373001': 'Detected',
+    '260415000': 'Not Detected',
+    '419984006': 'Inconclusive',
+    '125154007': 'Specimen Unsatisfactory'
+}
+
+lab_result_str = str(lab_result).strip()
+if lab_result_str not in LAB_RESULT_CODES:
+    result.add_error(
+        "Invalid lab result code",
+        field='lab_result',
+        doc_link='#mumps-validity-4-1'
+    )
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="mumps-validity-4-2">
+                        <div class="rule-header">
+                            <span class="rule-title">4.2 Parotitis Y/N/U Format</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Parotitis field must be Y (Yes), N (No), or U (Unknown).
+                            Free text like "yes", "true", "1" are flagged.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consistency -->
+    <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">🔗</span>
+                <span>3. CONSISTENCY - Clinical-Lab Agreement</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <div class="rule-grid">
+                    <div class="rule-card warning" id="mumps-consistency-3-1">
+                        <div class="rule-header">
+                            <span class="rule-title">3.1 Parotitis-Lab Correlation</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            If parotitis=N but lab=Positive, case classification may be questionable.
+                            If parotitis=Y but lab=Negative, may be clinical mumps or false negative.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Consistent:</div>
+                            <div class="example-good">parotitis=Y, lab=Positive (Confirmed case)</div>
+                            <div class="example-label">⚠️ Review:</div>
+                            <div class="example-bad">parotitis=N, lab=Positive (asymptomatic?)</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="mumps-consistency-3-2">
+                        <div class="rule-header">
+                            <span class="rule-title">3.2 Specimen Date Before Result</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Specimen collection date must be before or same as lab result date.
+                            Cannot get results before collecting specimen.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- NREVSS System Content -->
 <div id="nrevss-content" class="system-content">
     <h3 style="color: #1e3a5f; margin: 2rem 0 1rem;">NREVSS (Laboratory Surveillance)</h3>
     <p style="color: #666; margin-bottom: 2rem;">
-        Laboratory data quality validations for respiratory virus surveillance...
+        Laboratory-based surveillance for respiratory viruses. Weekly aggregate reports from participating labs.
     </p>
-    <!-- Similar accordion structure for NREVSS -->
+
+    <!-- Completeness -->
+    <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">✓</span>
+                <span>1. COMPLETENESS - Laboratory Report Fields</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <div class="rule-grid">
+                    <div class="rule-card error" id="nrevss-completeness-1-1">
+                        <div class="rule-header">
+                            <span class="rule-title">1.1 Required Laboratory Fields</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Required: reporting_week, reporting_lab, state, total_specimens_tested, virus_type.
+                            Weekly lab reports must include all core fields.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">All required columns present in weekly report CSV</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">Missing virus_type or reporting_week column</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nrevss-completeness-1-2">
+                        <div class="rule-header">
+                            <span class="rule-title">1.2 Result Fields Required</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            At least one result field required: positive_results, negative_results, or percent_positive.
+                            Cannot submit report without test results.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validity -->
+    <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">✔️</span>
+                <span>4. VALIDITY - CDC Week Format & Codes</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <div class="rule-grid">
+                    <div class="rule-card error" id="nrevss-validity-4-1">
+                        <div class="rule-header">
+                            <span class="rule-title">4.1 CDC Week Format (YYYY-WNN)</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Reporting week must follow CDC's Morbidity and Mortality Weekly Report (MMWR) format: YYYY-WNN.
+                            Four-digit year, hyphen, letter W, two-digit week (01-53).
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">2026-W04 | 2025-W52 | 2026-W01</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">2026-04 | W04-2026 | 2026/W04 | Week 4</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+import re
+
+week_str = str(week).strip()
+# Check format: YYYY-WNN
+if not re.match(r'^\d{4}-W\d{2}$', week_str):
+    result.add_error(
+        f"Invalid week format: {week_str} (expected YYYY-WNN)",
+        field='reporting_week',
+        doc_link='#nrevss-validity-4-1'
+    )
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nrevss-validity-4-2">
+                        <div class="rule-header">
+                            <span class="rule-title">4.2 Recognized Virus Types</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Virus type should match standard NREVSS categories: RSV, Influenza A/B, Parainfluenza 1-4,
+                            Adenovirus, Rhinovirus, Enterovirus, Human Metapneumovirus, Coronavirus, SARS-CoV-2.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">RSV | Influenza A | Parainfluenza 1 | SARS-CoV-2</div>
+                            <div class="example-label">⚠️ Unexpected:</div>
+                            <div class="example-bad">Flu | COVID | Para-1 (use standard names)</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nrevss-validity-4-3">
+                        <div class="rule-header">
+                            <span class="rule-title">4.3 State Code Validation</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            State must be valid 2-letter US state/territory abbreviation (50 states + DC, PR, VI, GU, AS, MP).
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accuracy -->
+    <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">🎯</span>
+                <span>2. ACCURACY - Specimen Count Ranges</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <div class="rule-grid">
+                    <div class="rule-card error" id="nrevss-accuracy-2-1">
+                        <div class="rule-header">
+                            <span class="rule-title">2.1 Specimen Count Range</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Total specimens tested must be 0-100,000 per week per lab.
+                            Values above 100,000 likely indicate data entry errors (extra zeros).
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">total_specimens_tested: 523</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">total_specimens_tested: 5230000 (likely typo)</div>
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nrevss-accuracy-2-2">
+                        <div class="rule-header">
+                            <span class="rule-title">2.2 Low Specimen Count Warning</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Less than 10 specimens tested is unusually low for weekly aggregate reporting.
+                            May indicate incomplete data or partial week reporting. Verify with lab.
+                        </div>
+                    </div>
+
+                    <div class="rule-card error" id="nrevss-accuracy-2-3">
+                        <div class="rule-header">
+                            <span class="rule-title">2.3 Percent Positive Range</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            Percent positive must be 0-100%. Values outside this range indicate calculation errors.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consistency -->
+    <div class="accordion">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+            <div class="accordion-title">
+                <span class="accordion-icon">🔗</span>
+                <span>3. CONSISTENCY - Result Calculations</span>
+            </div>
+            <span class="accordion-toggle">▼</span>
+        </div>
+        <div class="accordion-content">
+            <div class="accordion-body">
+                <div class="rule-grid">
+                    <div class="rule-card error" id="nrevss-consistency-3-1">
+                        <div class="rule-header">
+                            <span class="rule-title">3.1 Positive + Negative = Total</span>
+                            <span class="severity-badge severity-error">ERROR</span>
+                        </div>
+                        <div class="rule-description">
+                            The sum of positive_results and negative_results must equal total_specimens_tested.
+                            This is a fundamental consistency check for laboratory data.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Valid:</div>
+                            <div class="example-good">Positive: 45, Negative: 478, Total: 523 (45+478=523)</div>
+                            <div class="example-label">✗ Invalid:</div>
+                            <div class="example-bad">Positive: 45, Negative: 478, Total: 500 (45+478≠500)</div>
+                        </div>
+                        <button class="code-toggle" onclick="toggleCode(this)">Show Code</button>
+                        <div class="code-block">
+if pos_val + neg_val != total_val:
+    result.add_error(
+        f"Positive ({pos_val}) + Negative ({neg_val}) ≠ Total ({total_val})",
+        field='total_specimens_tested',
+        doc_link='#nrevss-consistency-3-1'
+    )
+                        </div>
+                    </div>
+
+                    <div class="rule-card warning" id="nrevss-consistency-3-2">
+                        <div class="rule-header">
+                            <span class="rule-title">3.2 Percent Positive Calculation</span>
+                            <span class="severity-badge severity-warning">WARNING</span>
+                        </div>
+                        <div class="rule-description">
+                            Calculated percent positive (positive/total × 100) should match reported percent_positive field.
+                            Allows ±0.2% difference for rounding. Larger discrepancies indicate calculation errors.
+                        </div>
+                        <div class="rule-examples">
+                            <div class="example-label">✓ Consistent:</div>
+                            <div class="example-good">45/523 × 100 = 8.6%, reported: 8.6%</div>
+                            <div class="example-label">⚠️ Mismatch:</div>
+                            <div class="example-bad">45/523 × 100 = 8.6%, reported: 12.5%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div style="text-align: center; margin: 3rem 0;">
@@ -705,5 +1318,67 @@ function filterContent() {
         });
     }
 }
+
+// Handle deep links from error messages
+function handleDeepLink() {
+    const hash = window.location.hash;
+    if (hash) {
+        // Extract system from hash (e.g., #nnad-completeness-1-1 -> nnad)
+        const system = hash.substring(1).split('-')[0];
+
+        // Switch to correct system tab
+        if (system === 'nnad' || system === 'mumps' || system === 'nrevss') {
+            document.querySelectorAll('.system-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.system-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            const systemTab = Array.from(document.querySelectorAll('.system-tab')).find(
+                tab => tab.textContent.toLowerCase().includes(system)
+            );
+            if (systemTab) systemTab.classList.add('active');
+
+            const systemContent = document.getElementById(system + '-content');
+            if (systemContent) systemContent.classList.add('active');
+        }
+
+        // Find the target element
+        const targetElement = document.querySelector(hash);
+        if (targetElement) {
+            // Find parent accordion and open it
+            let parent = targetElement.parentElement;
+            while (parent && !parent.classList.contains('accordion-content')) {
+                parent = parent.parentElement;
+            }
+
+            if (parent && !parent.classList.contains('show')) {
+                const header = parent.previousElementSibling;
+                if (header && header.classList.contains('accordion-header')) {
+                    toggleAccordion(header);
+                }
+            }
+
+            // Scroll to element
+            setTimeout(() => {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                // Highlight the rule card
+                targetElement.style.boxShadow = '0 0 0 4px #ffc107';
+                targetElement.style.transition = 'box-shadow 0.3s ease';
+
+                setTimeout(() => {
+                    targetElement.style.boxShadow = '';
+                }, 2000);
+            }, 300);
+        }
+    }
+}
+
+// Run deep link handler on page load
+document.addEventListener('DOMContentLoaded', handleDeepLink);
+// Also run when hash changes (for navigation within page)
+window.addEventListener('hashchange', handleDeepLink);
 </script>
 {% endblock %}

@@ -67,7 +67,10 @@ class NREVSSValidator(BaseValidator):
         missing = [col for col in self.REQUIRED_FIELDS if col not in df.columns]
 
         if missing:
-            result.add_error(f"Missing required NREVSS fields: {', '.join(missing)}")
+            result.add_error(
+                f"Missing required NREVSS fields: {', '.join(missing)}",
+                doc_link='#nrevss-completeness-1-1'
+            )
             return
 
         # Check for result fields
@@ -103,7 +106,8 @@ class NREVSSValidator(BaseValidator):
                         result.add_error(
                             f"Invalid week format: {week_str} (expected YYYY-WNN, e.g., 2026-W04)",
                             row=idx+2,
-                            field='reporting_week'
+                            field='reporting_week',
+                            doc_link='#nrevss-validity-4-1'
                         )
                 else:
                     result.add_error("Reporting week is missing", row=idx+2, field='reporting_week')
@@ -129,7 +133,8 @@ class NREVSSValidator(BaseValidator):
                         result.add_error(
                             f"Total specimens: {msg}",
                             row=idx+2,
-                            field='total_specimens_tested'
+                            field='total_specimens_tested',
+                            doc_link='#nrevss-accuracy-2-1'
                         )
 
         # Positive/negative results validation
@@ -187,7 +192,8 @@ class NREVSSValidator(BaseValidator):
                             result.add_error(
                                 f"Positive ({pos_val}) + Negative ({neg_val}) ≠ Total ({total_val})",
                                 row=idx+2,
-                                field='total_specimens_tested'
+                                field='total_specimens_tested',
+                                doc_link='#nrevss-consistency-3-1'
                             )
                     except:
                         pass
@@ -214,7 +220,8 @@ class NREVSSValidator(BaseValidator):
                                     f"Percent positive mismatch: Reported {reported_pct_val}%, "
                                     f"Calculated {calculated_pct}%",
                                     row=idx+2,
-                                    field='percent_positive'
+                                    field='percent_positive',
+                                    doc_link='#nrevss-consistency-3-2'
                                 )
                     except:
                         pass
@@ -229,7 +236,8 @@ class NREVSSValidator(BaseValidator):
                             result.add_warning(
                                 f"Very low specimen count ({total_val}) - verify data",
                                 row=idx+2,
-                                field='total_specimens_tested'
+                                field='total_specimens_tested',
+                                doc_link='#nrevss-accuracy-2-2'
                             )
                     except:
                         pass

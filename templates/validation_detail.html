@@ -56,7 +56,17 @@
                 <tr>
                     <td>{{ error.row or '—' }}</td>
                     <td><code>{{ error.field or 'General' }}</code></td>
-                    <td>{{ error.message }}</td>
+                    <td>
+                        {% if error.doc_link %}
+                            <a href="/documentation{{ error.doc_link }}"
+                               style="color: #2563eb; text-decoration: underline; cursor: pointer;"
+                               title="Click to view documentation for this validation rule">
+                                {{ error.message }}
+                            </a>
+                        {% else %}
+                            {{ error.message }}
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -87,7 +97,17 @@
                 <tr>
                     <td>{{ warning.row or '—' }}</td>
                     <td><code>{{ warning.field or 'General' }}</code></td>
-                    <td>{{ warning.message }}</td>
+                    <td>
+                        {% if warning.doc_link %}
+                            <a href="/documentation{{ warning.doc_link }}"
+                               style="color: #2563eb; text-decoration: underline; cursor: pointer;"
+                               title="Click to view documentation for this validation rule">
+                                {{ warning.message }}
+                            </a>
+                        {% else %}
+                            {{ warning.message }}
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

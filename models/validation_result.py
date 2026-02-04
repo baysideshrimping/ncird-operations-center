@@ -37,7 +37,7 @@ class ValidationResult:
         self.row_count = 0
         self.metadata = {}
 
-    def add_error(self, message, row=None, field=None, severity='error'):
+    def add_error(self, message, row=None, field=None, severity='error', doc_link=None):
         """
         Add an error to the result
 
@@ -46,6 +46,7 @@ class ValidationResult:
             row: Optional row number (1-indexed)
             field: Optional field/column name
             severity: 'error', 'warning', or 'info'
+            doc_link: Optional link to documentation (e.g., '#nnad-completeness-1-1')
         """
         error_obj = {
             'message': message,
@@ -58,6 +59,9 @@ class ValidationResult:
         if field is not None:
             error_obj['field'] = field
 
+        if doc_link is not None:
+            error_obj['doc_link'] = doc_link
+
         if severity == 'error':
             self.errors.append(error_obj)
         elif severity == 'warning':
@@ -65,13 +69,13 @@ class ValidationResult:
         else:
             self.info_messages.append(error_obj)
 
-    def add_warning(self, message, row=None, field=None):
+    def add_warning(self, message, row=None, field=None, doc_link=None):
         """Convenience method to add a warning"""
-        self.add_error(message, row, field, severity='warning')
+        self.add_error(message, row, field, severity='warning', doc_link=doc_link)
 
-    def add_info(self, message, row=None, field=None):
+    def add_info(self, message, row=None, field=None, doc_link=None):
         """Convenience method to add an info message"""
-        self.add_error(message, row, field, severity='info')
+        self.add_error(message, row, field, severity='info', doc_link=doc_link)
 
     def set_metadata(self, key, value):
         """Add metadata key-value pair"""

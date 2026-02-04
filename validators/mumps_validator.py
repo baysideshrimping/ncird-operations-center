@@ -89,7 +89,10 @@ class MumpsValidator(BaseValidator):
         missing = [col for col in self.REQUIRED_FIELDS if col not in df.columns]
 
         if missing:
-            result.add_error(f"Missing required mumps fields: {', '.join(missing)}")
+            result.add_error(
+                f"Missing required mumps fields: {', '.join(missing)}",
+                doc_link='#mumps-completeness-1-1'
+            )
             return
 
         # Check for clinical fields
@@ -153,7 +156,12 @@ class MumpsValidator(BaseValidator):
                         "Lab result"
                     )
                     if not is_valid:
-                        result.add_error(msg, row=idx+2, field='lab_result')
+                        result.add_error(
+                            msg,
+                            row=idx+2,
+                            field='lab_result',
+                            doc_link='#mumps-validity-4-1'
+                        )
 
         # Clinical Y/N/U fields
         ynu_fields = ['orchitis', 'oophoritis', 'mastitis', 'encephalitis',
@@ -223,7 +231,8 @@ class MumpsValidator(BaseValidator):
                             result.add_error(
                                 "Specimen collection date after result date",
                                 row=idx+2,
-                                field='specimen_collection_date'
+                                field='specimen_collection_date',
+                                doc_link='#mumps-consistency-3-2'
                             )
                     except:
                         pass
