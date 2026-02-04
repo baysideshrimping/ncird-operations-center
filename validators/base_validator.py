@@ -15,6 +15,7 @@ from utils.validators_common import (
     detect_placeholder_text,
     check_duplicate_rows
 )
+from utils.state_codes import validate_state_code
 
 class BaseValidator(ABC):
     """
@@ -62,6 +63,9 @@ class BaseValidator(ABC):
 
             result.row_count = len(df)
             result.set_metadata('column_count', len(df.columns))
+
+            # Extract jurisdiction from data for map visualization
+            self.extract_jurisdiction(df, result)
 
             # Run validation phases
             self.validate_structure(df, result)
@@ -190,6 +194,69 @@ class BaseValidator(ABC):
             result: ValidationResult to add errors
         """
         pass
+
+    def extract_jurisdiction(self, df, result):
+        """
+        Extract jurisdiction (state) from data for map visualization.
+
+        Looks for common jurisdiction field names and extracts the most
+        frequent valid state code to associate with this submission.
+
+        Args:
+            df: DataFrame
+            result: ValidationResult to set jurisdiction on
+        """
+        # Common field names that contain jurisdiction/state info
+        jurisdiction_fields = [
+            'reporting_jurisdiction',
+            'jurisdiction',
+            'state',
+            'state_code',
+            'state_abbr',
+            'submitting_state',
+            'rpt_state',
+            'fips_state'
+        ]
+
+        # Normalize column names for matching
+        df_cols_lower = {col.lower().replace(' ', '_'): col for col in df.columns}
+
+        for field in jurisdiction_fields:
+            if field in df_cols_lower:
+                actual_col = df_cols_lower[field]
+
+                # Get non-null values
+                values = df[actual_col].dropna().astype(str).str.strip().str.upper()
+
+                if len(values) == 0:
+                    continue
+
+                # Find most common value that's a valid state code
+                value_counts = values.value_counts()
+
+                for code, count in value_counts.items():
+                    # Try as abbreviation first, then as FIPS
+                    state_info = validate_state_code(code, 'abbr')
+                    if not state_info and code.isdigit():
+                        state_info = validate_state_code(code, 'fips')
+
+                    if state_info:
+                        result.jurisdiction = state_info['abbr']
+                        result.set_metadata('jurisdiction_field', actual_col)
+                        result.set_metadata('jurisdiction_name', state_info['name'])
+                        return
+
+        # Also try to extract from filename (e.g., "GA_nnad_2026.csv")
+        if result.jurisdiction is None:
+            filename_parts = result.filename.replace('.csv', '').replace('.xlsx', '').split('_')
+            for part in filename_parts:
+                part_upper = part.upper()
+                state_info = validate_state_code(part_upper, 'abbr')
+                if state_info:
+                    result.jurisdiction = state_info['abbr']
+                    result.set_metadata('jurisdiction_source', 'filename')
+                    result.set_metadata('jurisdiction_name', state_info['name'])
+                    return
 
     def validate_required_columns(self, df, required_cols, result):
         """
