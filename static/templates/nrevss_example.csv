@@ -1,0 +1,4 @@
+reporting_week,reporting_lab,state,total_specimens_tested,virus_type,positive_results,negative_results,percent_positive
+2026-W04,Quest_Diagnostics_CA,CA,523,RSV,45,478,8.6
+2026-W04,LabCorp_NY,NY,412,Influenza A,38,374,9.2
+2026-W04,State_Lab_TX,TX,289,SARS-CoV-2,12,277,4.2
