@@ -92,7 +92,8 @@ class NREVSSValidator(BaseValidator):
                         result.add_error(
                             f"Invalid state code: {state}",
                             row=idx+2,
-                            field='state'
+                            field='state',
+                            doc_link='#nrevss-validity-4-3'
                         )
 
         # Reporting week format validation (YYYY-WNN)
@@ -110,7 +111,12 @@ class NREVSSValidator(BaseValidator):
                             doc_link='#nrevss-validity-4-1'
                         )
                 else:
-                    result.add_error("Reporting week is missing", row=idx+2, field='reporting_week')
+                    result.add_error(
+                        "Reporting week is missing",
+                        row=idx+2,
+                        field='reporting_week',
+                        doc_link='#nrevss-completeness-1-1'
+                    )
 
         # Virus type validation
         if 'virus_type' in df.columns:
@@ -120,7 +126,8 @@ class NREVSSValidator(BaseValidator):
                         result.add_warning(
                             f"Unexpected virus type: {virus}",
                             row=idx+2,
-                            field='virus_type'
+                            field='virus_type',
+                            doc_link='#nrevss-validity-4-2'
                         )
                         result.add_info(f"Common types: {', '.join(self.VIRUS_TYPES[:5])}", row=idx+2)
 
@@ -146,7 +153,8 @@ class NREVSSValidator(BaseValidator):
                         result.add_error(
                             f"Positive results: {msg}",
                             row=idx+2,
-                            field='positive_results'
+                            field='positive_results',
+                            doc_link='#nrevss-accuracy-2-3'
                         )
 
         if 'negative_results' in df.columns:
@@ -157,7 +165,8 @@ class NREVSSValidator(BaseValidator):
                         result.add_error(
                             f"Negative results: {msg}",
                             row=idx+2,
-                            field='negative_results'
+                            field='negative_results',
+                            doc_link='#nrevss-accuracy-2-3'
                         )
 
         # Percent positive validation
@@ -169,7 +178,8 @@ class NREVSSValidator(BaseValidator):
                         result.add_error(
                             f"Percent positive: {msg}",
                             row=idx+2,
-                            field='percent_positive'
+                            field='percent_positive',
+                            doc_link='#nrevss-accuracy-2-3'
                         )
 
     def validate_custom(self, df, result):

@@ -124,7 +124,8 @@ class MumpsValidator(BaseValidator):
                         result.add_error(
                             f"Invalid jurisdiction: {jurisdiction}",
                             row=idx+2,
-                            field='reporting_jurisdiction'
+                            field='reporting_jurisdiction',
+                            doc_link='#mumps-validity-4-2'
                         )
 
         # Parotitis (key symptom)
@@ -137,9 +138,19 @@ class MumpsValidator(BaseValidator):
                         "Parotitis"
                     )
                     if not is_valid:
-                        result.add_error(msg, row=idx+2, field='parotitis')
+                        result.add_error(
+                            msg,
+                            row=idx+2,
+                            field='parotitis',
+                            doc_link='#mumps-validity-4-2'
+                        )
                 else:
-                    result.add_warning("Parotitis value is missing", row=idx+2, field='parotitis')
+                    result.add_warning(
+                        "Parotitis value is missing",
+                        row=idx+2,
+                        field='parotitis',
+                        doc_link='#mumps-completeness-1-2'
+                    )
 
         # Parotitis duration
         if 'parotitis_duration_days' in df.columns:
@@ -150,7 +161,8 @@ class MumpsValidator(BaseValidator):
                         result.add_error(
                             f"Parotitis duration: {msg}",
                             row=idx+2,
-                            field='parotitis_duration_days'
+                            field='parotitis_duration_days',
+                            doc_link='#mumps-accuracy-2-1'
                         )
 
         # Lab result validation
@@ -186,7 +198,12 @@ class MumpsValidator(BaseValidator):
                             field.replace('_', ' ').title()
                         )
                         if not is_valid:
-                            result.add_warning(msg, row=idx+2, field=field)
+                            result.add_warning(
+                                msg,
+                                row=idx+2,
+                                field=field,
+                                doc_link='#mumps-validity-4-2'
+                            )
 
         # Date validation
         date_fields = ['report_date', 'illness_onset_date',
@@ -198,7 +215,12 @@ class MumpsValidator(BaseValidator):
                     if pd.notna(date_val) and str(date_val).strip():
                         is_valid, msg = validate_date_format(date_val)
                         if not is_valid:
-                            result.add_error(f"{field}: {msg}", row=idx+2, field=field)
+                            result.add_error(
+                                f"{field}: {msg}",
+                                row=idx+2,
+                                field=field,
+                                doc_link='#mumps-validity-4-6'
+                            )
 
     def validate_custom(self, df, result):
         """Mumps-specific custom validations"""
@@ -214,7 +236,8 @@ class MumpsValidator(BaseValidator):
                     result.add_warning(
                         "Parotitis is No but duration > 0",
                         row=idx+2,
-                        field='parotitis_duration_days'
+                        field='parotitis_duration_days',
+                        doc_link='#mumps-consistency-3-1'
                     )
 
                 # If parotitis = Yes, duration should be present
@@ -222,7 +245,8 @@ class MumpsValidator(BaseValidator):
                     result.add_warning(
                         "Parotitis is Yes but duration is missing/zero",
                         row=idx+2,
-                        field='parotitis_duration_days'
+                        field='parotitis_duration_days',
+                        doc_link='#mumps-completeness-1-2'
                     )
 
         # Lab specimen date should be before result date
@@ -260,7 +284,8 @@ class MumpsValidator(BaseValidator):
                         result.add_warning(
                             "Case is Confirmed but lab result is not Positive",
                             row=idx+2,
-                            field='case_status'
+                            field='case_status',
+                            doc_link='#mumps-consistency-3-1'
                         )
 
         # Check for mumps-specific complications

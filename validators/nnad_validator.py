@@ -129,7 +129,8 @@ class NNADValidator(BaseValidator):
                         result.add_error(
                             f"Invalid jurisdiction code: {jurisdiction}",
                             row=idx+2,
-                            field='reporting_jurisdiction'
+                            field='reporting_jurisdiction',
+                            doc_link='#nnad-validity-4-2'
                         )
                         # Suggest nearby valid codes
                         if len(str(jurisdiction)) == 2:
@@ -148,7 +149,12 @@ class NNADValidator(BaseValidator):
                         "Case status"
                     )
                     if not is_valid:
-                        result.add_error(msg, row=idx+2, field='case_status')
+                        result.add_error(
+                            msg,
+                            row=idx+2,
+                            field='case_status',
+                            doc_link='#nnad-validity-4-1'
+                        )
                         result.add_info(
                             f"Valid codes: {', '.join([f'{k} ({v})' for k, v in self.CASE_STATUS_CODES.items()])}",
                             row=idx+2
@@ -164,7 +170,12 @@ class NNADValidator(BaseValidator):
                     if pd.notna(date_val) and str(date_val).strip():
                         is_valid, msg = validate_date_format(date_val)
                         if not is_valid:
-                            result.add_error(f"{field}: {msg}", row=idx+2, field=field)
+                            result.add_error(
+                                f"{field}: {msg}",
+                                row=idx+2,
+                                field=field,
+                                doc_link='#nnad-validity-4-3'
+                            )
 
         # Age validation
         if 'age_at_case_investigation' in df.columns:
@@ -185,7 +196,12 @@ class NNADValidator(BaseValidator):
                 if pd.notna(unit):
                     is_valid, msg = validate_code_in_list(unit, self.AGE_UNITS.keys(), "Age unit")
                     if not is_valid:
-                        result.add_warning(msg, row=idx+2, field='age_unit')
+                        result.add_warning(
+                            msg,
+                            row=idx+2,
+                            field='age_unit',
+                            doc_link='#nnad-validity-4-4'
+                        )
 
         # Sex validation
         if 'sex' in df.columns:
@@ -193,7 +209,12 @@ class NNADValidator(BaseValidator):
                 if pd.notna(sex):
                     is_valid, msg = validate_code_in_list(sex, self.SEX_CODES.keys(), "Sex")
                     if not is_valid:
-                        result.add_warning(msg, row=idx+2, field='sex')
+                        result.add_warning(
+                            msg,
+                            row=idx+2,
+                            field='sex',
+                            doc_link='#nnad-validity-4-4'
+                        )
 
     def validate_custom(self, df, result):
         """Custom NNAD validations"""
@@ -205,7 +226,10 @@ class NNADValidator(BaseValidator):
                 subset=['reporting_jurisdiction', 'condition', 'illness_onset_date']
             )
             if has_dups:
-                result.add_warning(f"Possible duplicate cases: {msg}")
+                result.add_warning(
+                    f"Possible duplicate cases: {msg}",
+                    doc_link='#nnad-uniqueness-6-2'
+                )
 
         # Logical date validation: onset before report
         if 'illness_onset_date' in df.columns and 'report_date' in df.columns:
