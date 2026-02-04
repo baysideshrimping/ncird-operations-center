@@ -2,47 +2,435 @@
 
 {% block title %}Geographic Map - NCIRD{% endblock %}
 
+{% block extra_css %}
+<style>
+    .map-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+
+    .map-page-header h1 {
+        color: #1e3a5f;
+        margin-bottom: 0.25rem;
+    }
+
+    .map-subtitle {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    .stats-bar {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.25rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+        min-width: 140px;
+    }
+
+    .stat-card.healthy { border-left: 4px solid #22c55e; }
+    .stat-card.warning { border-left: 4px solid #f59e0b; }
+    .stat-card.critical { border-left: 4px solid #ef4444; }
+    .stat-card.pending { border-left: 4px solid #6b7280; }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #1e3a5f;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .map-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    #us-map {
+        width: 100%;
+        height: auto;
+    }
+
+    .state {
+        fill: #e5e7eb;
+        stroke: #fff;
+        stroke-width: 1;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .state:hover {
+        opacity: 0.8;
+        stroke-width: 2;
+        stroke: #1e3a5f;
+    }
+
+    .state.passed { fill: #22c55e; }
+    .state.passed_with_warnings { fill: #f59e0b; }
+    .state.failed { fill: #ef4444; }
+    .state.no_data { fill: #e5e7eb; }
+
+    .legend {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+
+    .legend-color {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+    }
+
+    .legend-color.passed { background: #22c55e; }
+    .legend-color.warning { background: #f59e0b; }
+    .legend-color.failed { background: #ef4444; }
+    .legend-color.pending { background: #e5e7eb; border: 1px solid #d1d5db; }
+
+    .tooltip {
+        position: absolute;
+        background: #1e3a5f;
+        color: white;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s;
+        z-index: 1000;
+        max-width: 280px;
+    }
+
+    .tooltip strong {
+        font-size: 1.1em;
+    }
+
+    .system-filter {
+        margin-bottom: 1.5rem;
+    }
+
+    .system-filter label {
+        font-weight: 600;
+        margin-right: 1rem;
+        color: #1e3a5f;
+    }
+
+    .system-filter select {
+        padding: 0.5rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+        min-width: 200px;
+    }
+
+    .state-grid-section {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 2rem;
+    }
+
+    .state-grid-section h3 {
+        color: #1e3a5f;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-bar {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+        background: #1e3a5f;
+        color: white;
+        border-color: #1e3a5f;
+    }
+
+    .state-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+
+    .state-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 6px;
+        transition: transform 0.2s;
+    }
+
+    .state-item:hover {
+        transform: translateX(4px);
+    }
+
+    .state-badge {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .state-badge.passed { background: #22c55e; }
+    .state-badge.passed_with_warnings { background: #f59e0b; }
+    .state-badge.failed { background: #ef4444; }
+    .state-badge.no_data { background: #d1d5db; }
+
+    .state-info strong {
+        color: #1e3a5f;
+    }
+
+    .state-info .details {
+        font-size: 0.85rem;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<h1 style="color: #1e3a5f; margin-bottom: 2rem;">Geographic Coverage Map</h1>
-
-<div class="card">
-    <div class="card-header">Submission Status by Jurisdiction</div>
-    <p style="margin: 1rem 0; color: #666;">
-        Interactive map showing data submission status for all US states and territories.
-    </p>
-
-    <div style="display: flex; gap: 1rem; margin: 1rem 0;">
-        <div><span class="badge badge-success">✅</span> Passed (Healthy)</div>
-        <div><span class="badge badge-warning">⚠️</span> Warning/Issues</div>
-        <div><span class="badge badge-danger">❌</span> Failed/Alert</div>
-        <div><span class="badge badge-secondary">—</span> No Data</div>
+<div class="map-page-header">
+    <div>
+        <h1>Geographic Coverage Map</h1>
+        <p class="map-subtitle">Real-time submission status across all US jurisdictions</p>
     </div>
+</div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; margin-top: 2rem;">
+{% set passed_count = namespace(value=0) %}
+{% set warning_count = namespace(value=0) %}
+{% set failed_count = namespace(value=0) %}
+{% set pending_count = namespace(value=0) %}
+
+{% for jurisdiction in jurisdictions %}
+    {% set status = jurisdiction_status.get(jurisdiction.abbr, {}) %}
+    {% if status.status == 'passed' %}
+        {% set passed_count.value = passed_count.value + 1 %}
+    {% elif status.status == 'passed_with_warnings' %}
+        {% set warning_count.value = warning_count.value + 1 %}
+    {% elif status.status == 'failed' %}
+        {% set failed_count.value = failed_count.value + 1 %}
+    {% else %}
+        {% set pending_count.value = pending_count.value + 1 %}
+    {% endif %}
+{% endfor %}
+
+<div class="stats-bar">
+    <div class="stat-card healthy">
+        <div class="stat-number">{{ passed_count.value }}</div>
+        <div class="stat-label">Healthy</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-number">{{ warning_count.value }}</div>
+        <div class="stat-label">Warnings</div>
+    </div>
+    <div class="stat-card critical">
+        <div class="stat-number">{{ failed_count.value }}</div>
+        <div class="stat-label">Critical</div>
+    </div>
+    <div class="stat-card pending">
+        <div class="stat-number">{{ pending_count.value }}</div>
+        <div class="stat-label">No Data</div>
+    </div>
+</div>
+
+<div class="map-container">
+    <div id="us-map"></div>
+    <div class="tooltip" id="tooltip"></div>
+    <div class="legend">
+        <div class="legend-item"><div class="legend-color passed"></div><span>Healthy - All validations passed</span></div>
+        <div class="legend-item"><div class="legend-color warning"></div><span>Warnings - Passed with issues</span></div>
+        <div class="legend-item"><div class="legend-color failed"></div><span>Critical - Validation failed</span></div>
+        <div class="legend-item"><div class="legend-color pending"></div><span>No Data - Awaiting submission</span></div>
+    </div>
+</div>
+
+<div class="state-grid-section">
+    <h3>Jurisdiction Details</h3>
+    <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterStates('all')">All ({{ jurisdictions|length }})</button>
+        <button class="filter-btn" onclick="filterStates('passed')">Healthy ({{ passed_count.value }})</button>
+        <button class="filter-btn" onclick="filterStates('passed_with_warnings')">Warnings ({{ warning_count.value }})</button>
+        <button class="filter-btn" onclick="filterStates('failed')">Critical ({{ failed_count.value }})</button>
+        <button class="filter-btn" onclick="filterStates('no_data')">No Data ({{ pending_count.value }})</button>
+    </div>
+    <div class="state-grid" id="state-grid">
         {% for jurisdiction in jurisdictions %}
         {% set status = jurisdiction_status.get(jurisdiction.abbr, {}) %}
-        <div style="background: #f8f9fa; padding: 1rem; border-radius: 4px; border-left: 4px solid
-            {% if status.status == 'passed' %}#28a745
-            {% elif status.status == 'failed' %}#dc3545
-            {% elif status.status == 'passed_with_warnings' %}#ffc107
-            {% else %}#6c757d{% endif %};">
-            <div style="font-weight: 600; margin-bottom: 0.5rem;">{{ jurisdiction.name }} ({{ jurisdiction.abbr }})</div>
-            {% if status.stats %}
-                <div style="font-size: 0.9rem; color: #666;">
-                    <div>Total: {{ status.stats.total }}</div>
-                    <div>Passed: {{ status.stats.passed }}</div>
-                    <div>Failed: {{ status.stats.failed }}</div>
-                    <div style="font-size: 0.85rem; margin-top: 0.5rem;">Last: {{ status.stats.last_submission }}</div>
+        <div class="state-item" data-status="{{ status.status or 'no_data' }}">
+            <div class="state-badge {{ status.status or 'no_data' }}"></div>
+            <div class="state-info">
+                <strong>{{ jurisdiction.name }} ({{ jurisdiction.abbr }})</strong>
+                {% if status.stats %}
+                <div class="details">
+                    {{ status.stats.total }} submissions |
+                    {{ status.stats.passed }} passed |
+                    {{ status.stats.failed }} failed
                 </div>
-            {% else %}
-                <div style="color: #999; font-size: 0.9rem;">No submissions</div>
-            {% endif %}
+                {% else %}
+                <div class="details">No submissions yet</div>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>
 </div>
+{% endblock %}
 
-<div style="text-align: center; margin-top: 2rem;">
-    <a href="/" class="btn btn-secondary">Back to Dashboard</a>
-</div>
+{% block extra_js %}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://d3js.org/topojson.v3.min.js"></script>
+<script>
+    // State status from server
+    const jurisdictionStatus = {{ jurisdiction_status | tojson | safe }};
+
+    // FIPS to state abbreviation mapping
+    const fipsToAbbr = {
+        '01': 'AL', '02': 'AK', '04': 'AZ', '05': 'AR', '06': 'CA', '08': 'CO', '09': 'CT',
+        '10': 'DE', '11': 'DC', '12': 'FL', '13': 'GA', '15': 'HI', '16': 'ID', '17': 'IL',
+        '18': 'IN', '19': 'IA', '20': 'KS', '21': 'KY', '22': 'LA', '23': 'ME', '24': 'MD',
+        '25': 'MA', '26': 'MI', '27': 'MN', '28': 'MS', '29': 'MO', '30': 'MT', '31': 'NE',
+        '32': 'NV', '33': 'NH', '34': 'NJ', '35': 'NM', '36': 'NY', '37': 'NC', '38': 'ND',
+        '39': 'OH', '40': 'OK', '41': 'OR', '42': 'PA', '44': 'RI', '45': 'SC', '46': 'SD',
+        '47': 'TN', '48': 'TX', '49': 'UT', '50': 'VT', '51': 'VA', '53': 'WA', '54': 'WV',
+        '55': 'WI', '56': 'WY', '72': 'PR', '78': 'VI', '66': 'GU', '60': 'AS', '69': 'MP'
+    };
+
+    // State names
+    const stateNames = {
+        'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+        'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'DC': 'District of Columbia',
+        'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois',
+        'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana',
+        'ME': 'Maine', 'MD': 'Maryland', 'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota',
+        'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada',
+        'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York',
+        'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma', 'OR': 'Oregon',
+        'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota',
+        'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 'VA': 'Virginia',
+        'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+        'PR': 'Puerto Rico', 'VI': 'Virgin Islands', 'GU': 'Guam', 'AS': 'American Samoa', 'MP': 'Northern Mariana Islands'
+    };
+
+    // Set up SVG
+    const width = 960, height = 600;
+    const svg = d3.select('#us-map')
+        .append('svg')
+        .attr('viewBox', `0 0 ${width} ${height}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet');
+
+    const tooltip = d3.select('#tooltip');
+    const projection = d3.geoAlbersUsa().scale(1200).translate([width / 2, height / 2]);
+    const path = d3.geoPath().projection(projection);
+
+    // Load and render map
+    d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json').then(us => {
+        const states = topojson.feature(us, us.objects.states).features;
+
+        svg.selectAll('.state')
+            .data(states)
+            .enter()
+            .append('path')
+            .attr('class', d => {
+                const fips = String(d.id).padStart(2, '0');
+                const abbr = fipsToAbbr[fips];
+                const statusInfo = jurisdictionStatus[abbr] || {};
+                const status = statusInfo.status || 'no_data';
+                return `state ${status}`;
+            })
+            .attr('d', path)
+            .attr('id', d => fipsToAbbr[String(d.id).padStart(2, '0')])
+            .on('mouseover', (event, d) => {
+                const fips = String(d.id).padStart(2, '0');
+                const abbr = fipsToAbbr[fips];
+                const name = stateNames[abbr] || 'Unknown';
+                const statusInfo = jurisdictionStatus[abbr] || {};
+                const stats = statusInfo.stats;
+
+                let html = `<strong>${name} (${abbr})</strong>`;
+
+                if (stats) {
+                    const statusLabel = {
+                        'passed': 'Healthy',
+                        'passed_with_warnings': 'Warnings',
+                        'failed': 'Critical',
+                        'no_data': 'No Data'
+                    }[statusInfo.status] || statusInfo.status;
+
+                    html += `<br>Status: ${statusLabel}`;
+                    html += `<br>Total Submissions: ${stats.total}`;
+                    html += `<br>Passed: ${stats.passed} | Failed: ${stats.failed}`;
+                    if (stats.last_submission) {
+                        html += `<br>Last: ${stats.last_submission}`;
+                    }
+                } else {
+                    html += '<br>No submissions yet';
+                }
+
+                tooltip.html(html)
+                    .style('left', (event.pageX + 15) + 'px')
+                    .style('top', (event.pageY - 10) + 'px')
+                    .style('opacity', 1);
+            })
+            .on('mousemove', (event) => {
+                tooltip
+                    .style('left', (event.pageX + 15) + 'px')
+                    .style('top', (event.pageY - 10) + 'px');
+            })
+            .on('mouseout', () => {
+                tooltip.style('opacity', 0);
+            });
+    });
+
+    // Filter function for state grid
+    function filterStates(status) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        document.querySelectorAll('.state-item').forEach(item => {
+            if (status === 'all' || item.dataset.status === status) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+</script>
 {% endblock %}

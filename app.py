@@ -43,6 +43,20 @@ app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
 os.makedirs(config.DATA_DIR, exist_ok=True)
 os.makedirs(config.UPLOAD_FOLDER, exist_ok=True)
 
+# Auto-seed demo data if no submissions exist
+def maybe_seed_demo_data():
+    """Seed demo data for map visualization if database is empty"""
+    submissions_file = os.path.join(config.DATA_DIR, 'submissions.json')
+    if not os.path.exists(submissions_file):
+        try:
+            from seed_demo_data import seed_demo_data
+            print("No submissions found - seeding demo data for map visualization...")
+            seed_demo_data()
+        except Exception as e:
+            print(f"Could not seed demo data: {e}")
+
+maybe_seed_demo_data()
+
 
 # ============================================================================
 # MAIN DASHBOARD
