@@ -1,0 +1,5 @@
+condition,reporting_jurisdiction,case_status,report_date,illness_onset_date,parotitis,parotitis_duration_days,lab_result,lab_test_type,sex,age_at_case_investigation,mmr_doses,hospitalized
+Mumps,WA,410605003,2026-01-20,2026-01-12,,5,10828004,MUMPS_PCR,M,22,2,N
+Mumps,WA,410605003,2026-01-19,2026-01-10,Y,7,10828004,MUMPS_IGM,F,19,2,N
+Mumps,WA,2931005,2026-01-18,2026-01-11,,4,260385009,MUMPS_IGM,M,21,1,N
+Mumps,WA,410605003,2027-03-15,2027-03-08,Y,5,10828004,MUMPS_PCR,F,20,2,N

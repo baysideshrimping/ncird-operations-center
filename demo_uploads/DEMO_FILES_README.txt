@@ -72,6 +72,23 @@ AZ_Mumps_SexMismatch.csv - SEX-SPECIFIC COMPLICATION ERRORS
   - Row 5: Parotitis duration=75 days (implausible, likely typo)
   - Row 6: Confirmed case with negative lab result (classification mismatch)
 
+OH_NNAD_FutureDates.csv - FUTURE DATE ERRORS (NEW)
+  - Row 2: report_date and illness_onset_date in 2027 (future)
+  - Row 3: illness_onset_date in December 2026 (future)
+  - Row 5: Dates in 2029/2030 (far future)
+
+WA_Mumps_MissingParotitis.csv - REQUIRED FIELD ERRORS (NEW)
+  - Row 2: Parotitis field is empty (now a hard error)
+  - Row 4: Parotitis field is empty
+  - Row 5: Future dates (2027)
+
+ARUP_NREVSS_BadWeeks.csv - WEEK VALIDATION ERRORS (NEW)
+  - Row 2: Week 55 is invalid (max is 53)
+  - Row 3: Week in 2027 is in the future
+  - Row 4: Positive (500) > Total (400) - impossible
+  - Row 5: Positive (350) > Total (300) - impossible
+  - Row 6: Week 00 is invalid (min is 1)
+
 
 DEMO TIPS
 ---------

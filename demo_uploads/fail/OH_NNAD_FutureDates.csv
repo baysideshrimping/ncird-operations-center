@@ -1,0 +1,5 @@
+condition,reporting_jurisdiction,case_status,report_date,illness_onset_date,age_at_case_investigation,age_unit,sex,hospitalized,died,pregnant,outbreak_associated
+Pertussis,OH,410605003,2027-06-15,2027-06-10,25,a,M,N,N,NA,N
+Measles,OH,410605003,2026-02-04,2026-12-25,8,a,F,N,N,NA,N
+Hepatitis A,OH,2931005,2026-02-03,2026-01-28,42,a,M,Y,N,NA,N
+Pertussis,OH,410605003,2030-01-01,2029-12-20,15,a,F,N,N,N,N

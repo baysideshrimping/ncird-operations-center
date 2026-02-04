@@ -1,0 +1,6 @@
+reporting_week,reporting_lab,state,total_specimens_tested,virus_type,positive_results,negative_results,percent_positive
+2026-W55,ARUP Labs Salt Lake,UT,500,RSV,75,425,15.0
+2027-W10,ARUP Labs Salt Lake,UT,600,Influenza A,150,450,25.0
+2026-W05,ARUP Labs Salt Lake,UT,400,Influenza B,500,100,125.0
+2026-W05,ARUP Labs Denver,CO,300,RSV,350,50,116.7
+2026-W00,ARUP Labs Denver,CO,450,Influenza A,90,360,20.0
