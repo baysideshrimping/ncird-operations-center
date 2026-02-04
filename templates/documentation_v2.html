@@ -2010,9 +2010,16 @@ if severe_comps and hospitalized == 'N':
         </a>
     </div>
 
-    <p style="color: #666; margin-bottom: 2rem;">
+    <p style="color: #666; margin-bottom: 1rem;">
         Laboratory-based surveillance for respiratory viruses. Weekly aggregate reports from participating labs.
     </p>
+
+    <div style="background: #e8f4f8; border-left: 4px solid #17a2b8; padding: 1rem; margin-bottom: 2rem; border-radius: 0 6px 6px 0;">
+        <p style="margin: 0; color: #0c5460; font-size: 0.9rem;">
+            <strong>Note:</strong> NREVSS uses 4 validation categories (Completeness, Validity, Accuracy, Consistency) rather than the full 6 used for case-based surveillance like NNAD.
+            As aggregate laboratory data, NREVSS doesn't require Timeliness checks (labs report weekly by design) or Uniqueness/deduplication checks (aggregate counts aren't subject to duplicate case submissions).
+        </p>
+    </div>
 
     <!-- Completeness -->
     <div class="accordion">
@@ -2082,23 +2089,7 @@ if len(result_present) == 0:
     )
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Additional Completeness Rules -->
-    <div class="accordion">
-        <div class="accordion-header" onclick="toggleAccordion(this)">
-            <div class="accordion-title">
-                <span class="accordion-icon">✓</span>
-                <span>1. COMPLETENESS (Continued)</span>
-            </div>
-            <span class="accordion-toggle">▼</span>
-        </div>
-        <div class="accordion-content">
-            <div class="accordion-body">
-                <div class="rule-grid">
                     <div class="rule-card error" id="nrevss-completeness-1-3">
                         <div class="rule-header">
                             <span class="rule-title">1.3 Reporting Week Cannot Be Blank</span>
@@ -2501,6 +2492,15 @@ if total_val > 0:
             <strong>Validation Framework Version:</strong> 2.0 |
             <strong>Total Validations:</strong> 62+ rules across 3 data streams |
             <strong>Last Updated:</strong> February 2026
+        </p>
+    </div>
+
+    <!-- Demo Disclaimer -->
+    <div style="text-align: center; margin-top: 1.5rem; padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
+        <p style="color: #856404; margin: 0; font-size: 0.85rem;">
+            <strong>Demo Notice:</strong> This application is for demonstration purposes only.
+            All data shown is simulated and does not represent actual CDC surveillance data or real public health information.
+            Built by Peraton to demonstrate AI-assisted data validation tool development.
         </p>
     </div>
 </div>
