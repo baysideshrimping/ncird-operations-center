@@ -268,6 +268,12 @@ def documentation():
     return render_template('documentation_v2.html')
 
 
+@app.route('/templates')
+def templates():
+    """Templates & Data Dictionaries - CSV templates and field specifications"""
+    return render_template('templates_resources.html')
+
+
 # ============================================================================
 # API ENDPOINTS
 # ============================================================================

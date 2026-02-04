@@ -1,0 +1,806 @@
+{% extends "base.html" %}
+
+{% block title %}Templates & Data Dictionaries - NCIRD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .page-header h1 {
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    .stream-section {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 6px solid #2c5282;
+    }
+
+    .stream-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .stream-title {
+        font-size: 1.75rem;
+        color: #1e3a5f;
+        font-weight: 600;
+    }
+
+    .download-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-download {
+        padding: 0.75rem 1.5rem;
+        background: #2c5282;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-download:hover {
+        background: #1e3a5f;
+        color: white;
+    }
+
+    .btn-example {
+        background: #667eea;
+    }
+
+    .btn-example:hover {
+        background: #5568d3;
+    }
+
+    .data-dictionary {
+        margin: 2rem 0;
+    }
+
+    .dict-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .dict-table th {
+        background: #2c5282;
+        color: white;
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .dict-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .dict-table tr:hover {
+        background: #f8f9fa;
+    }
+
+    .required-badge {
+        background: #dc3545;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .optional-badge {
+        background: #6c757d;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .codebook {
+        margin: 2rem 0;
+    }
+
+    .codebook-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .code-card {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 6px;
+        border-left: 4px solid #667eea;
+    }
+
+    .code-card h4 {
+        color: #2c5282;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .code-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .code-list li {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        background: white;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+    }
+
+    .code-value {
+        color: #2c5282;
+        font-weight: 600;
+    }
+
+    .section-subtitle {
+        color: #2c5282;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 2rem 0 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📋 Templates & Data Dictionaries</h1>
+    <p style="font-size: 1.1rem; margin: 0;">
+        Official CSV templates, field specifications, and valid code sets for all NCIRD data streams
+    </p>
+</div>
+
+<!-- NNAD Section -->
+<div class="stream-section" id="nnad">
+    <div class="stream-header">
+        <div class="stream-title">NNAD (National Notifiable Diseases Surveillance)</div>
+        <div class="download-buttons">
+            <a href="/static/templates/nnad_template.csv" download class="btn-download">
+                📥 Download Template
+            </a>
+            <a href="/static/templates/nnad_example.csv" download class="btn-download btn-example">
+                📄 Download Example
+            </a>
+        </div>
+    </div>
+
+    <p style="color: #666; margin-bottom: 2rem;">
+        Case notification data for nationally notifiable diseases. Uses Generic v2 MMG standards.
+    </p>
+
+    <!-- Data Dictionary -->
+    <div class="data-dictionary">
+        <h3 class="section-subtitle">📖 Data Dictionary</h3>
+        <table class="dict-table">
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Format/Length</th>
+                    <th>Valid Values</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>condition</code></td>
+                    <td>Text</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>-</td>
+                    <td>Disease name</td>
+                    <td>Nationally notifiable disease (e.g., "Mumps", "Measles")</td>
+                </tr>
+                <tr>
+                    <td><code>reporting_jurisdiction</code></td>
+                    <td>Code</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>2 chars</td>
+                    <td>State abbr (CA, TX, NY, etc.)</td>
+                    <td>Reporting state/territory FIPS code</td>
+                </tr>
+                <tr>
+                    <td><code>case_status</code></td>
+                    <td>Code</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>SNOMED CT</td>
+                    <td>410605003, 2931005, 415684004, PHC1464</td>
+                    <td>Case classification (Confirmed/Probable/Suspected/Not a case)</td>
+                </tr>
+                <tr>
+                    <td><code>report_date</code></td>
+                    <td>Date</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>YYYY-MM-DD</td>
+                    <td>ISO 8601 format</td>
+                    <td>Date case was reported to health department</td>
+                </tr>
+                <tr>
+                    <td><code>illness_onset_date</code></td>
+                    <td>Date</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>YYYY-MM-DD</td>
+                    <td>ISO 8601 format</td>
+                    <td>Date of illness onset/symptom start</td>
+                </tr>
+                <tr>
+                    <td><code>age_at_case_investigation</code></td>
+                    <td>Integer</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>0-120</td>
+                    <td>Numeric age value</td>
+                    <td>Patient age at time of investigation</td>
+                </tr>
+                <tr>
+                    <td><code>age_unit</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1-2 chars</td>
+                    <td>a, mo, d, h</td>
+                    <td>Age unit (years, months, days, hours)</td>
+                </tr>
+                <tr>
+                    <td><code>birth_date</code></td>
+                    <td>Date</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>YYYY-MM-DD</td>
+                    <td>ISO 8601 format</td>
+                    <td>Patient date of birth</td>
+                </tr>
+                <tr>
+                    <td><code>sex</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1 char</td>
+                    <td>M, F, U, O</td>
+                    <td>Patient sex (Male/Female/Unknown/Other)</td>
+                </tr>
+                <tr>
+                    <td><code>race</code></td>
+                    <td>Text</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>-</td>
+                    <td>Race category</td>
+                    <td>Patient race</td>
+                </tr>
+                <tr>
+                    <td><code>ethnicity</code></td>
+                    <td>Text</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>-</td>
+                    <td>Hispanic/Non-Hispanic</td>
+                    <td>Patient ethnicity</td>
+                </tr>
+                <tr>
+                    <td><code>hospitalized</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1 char</td>
+                    <td>Y, N, U</td>
+                    <td>Was patient hospitalized?</td>
+                </tr>
+                <tr>
+                    <td><code>died</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1 char</td>
+                    <td>Y, N, U</td>
+                    <td>Did patient die from this illness?</td>
+                </tr>
+                <tr>
+                    <td><code>pregnant</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1-2 chars</td>
+                    <td>Y, N, U, NA</td>
+                    <td>Pregnancy status (for females age 12-50)</td>
+                </tr>
+                <tr>
+                    <td><code>pregnancy_trimester</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1 char</td>
+                    <td>1, 2, 3, U</td>
+                    <td>Trimester if pregnant (1st/2nd/3rd/Unknown)</td>
+                </tr>
+                <tr>
+                    <td><code>outbreak_associated</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1 char</td>
+                    <td>Y, N, U</td>
+                    <td>Is case associated with known outbreak?</td>
+                </tr>
+                <tr>
+                    <td><code>outbreak_name</code></td>
+                    <td>Text</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>-</td>
+                    <td>Outbreak identifier</td>
+                    <td>Name/ID of outbreak investigation</td>
+                </tr>
+                <tr>
+                    <td><code>import_status</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>3 chars</td>
+                    <td>IMP, IND, INC, UNK</td>
+                    <td>Imported/Import-related/Indigenous/Unknown</td>
+                </tr>
+                <tr>
+                    <td><code>vaccination_doses</code></td>
+                    <td>Integer</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>0-10</td>
+                    <td>Dose count</td>
+                    <td>Number of vaccine doses received</td>
+                </tr>
+                <tr>
+                    <td><code>lab_result</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>SNOMED CT</td>
+                    <td>10828004, 260385009, etc.</td>
+                    <td>Laboratory test result code</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Codebook -->
+    <div class="codebook">
+        <h3 class="section-subtitle">📚 Valid Code Sets</h3>
+        <div class="codebook-grid">
+            <div class="code-card">
+                <h4>Case Status (SNOMED CT)</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">410605003</span> = Confirmed</li>
+                    <li><span class="code-value">2931005</span> = Probable</li>
+                    <li><span class="code-value">415684004</span> = Suspected</li>
+                    <li><span class="code-value">PHC1464</span> = Not a case</li>
+                </ul>
+            </div>
+            <div class="code-card">
+                <h4>Import Status</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">IMP</span> = Imported</li>
+                    <li><span class="code-value">IND</span> = Import-related</li>
+                    <li><span class="code-value">INC</span> = Indigenous</li>
+                    <li><span class="code-value">UNK</span> = Unknown</li>
+                </ul>
+            </div>
+            <div class="code-card">
+                <h4>Yes/No/Unknown (Y/N/U)</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">Y</span> = Yes</li>
+                    <li><span class="code-value">N</span> = No</li>
+                    <li><span class="code-value">U</span> = Unknown</li>
+                </ul>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #666;">
+                    Used for: hospitalized, died, outbreak_associated
+                </p>
+            </div>
+            <div class="code-card">
+                <h4>Pregnancy Status</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">Y</span> = Yes (pregnant)</li>
+                    <li><span class="code-value">N</span> = No (not pregnant)</li>
+                    <li><span class="code-value">U</span> = Unknown</li>
+                    <li><span class="code-value">NA</span> = Not applicable</li>
+                </ul>
+            </div>
+            <div class="code-card">
+                <h4>Sex Codes</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">M</span> = Male</li>
+                    <li><span class="code-value">F</span> = Female</li>
+                    <li><span class="code-value">U</span> = Unknown</li>
+                    <li><span class="code-value">O</span> = Other</li>
+                </ul>
+            </div>
+            <div class="code-card">
+                <h4>Age Unit Codes</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">a</span> = Years</li>
+                    <li><span class="code-value">mo</span> = Months</li>
+                    <li><span class="code-value">d</span> = Days</li>
+                    <li><span class="code-value">h</span> = Hours</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mumps Section -->
+<div class="stream-section" id="mumps">
+    <div class="stream-header">
+        <div class="stream-title">Mumps Disease Surveillance (MMG v1.0.2)</div>
+        <div class="download-buttons">
+            <a href="/static/templates/mumps_template.csv" download class="btn-download">
+                📥 Download Template
+            </a>
+            <a href="/static/templates/mumps_example.csv" download class="btn-download btn-example">
+                📄 Download Example
+            </a>
+        </div>
+    </div>
+
+    <p style="color: #666; margin-bottom: 2rem;">
+        Mumps-specific case surveillance with clinical symptoms and laboratory confirmation.
+    </p>
+
+    <!-- Data Dictionary -->
+    <div class="data-dictionary">
+        <h3 class="section-subtitle">📖 Data Dictionary</h3>
+        <table class="dict-table">
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Format/Length</th>
+                    <th>Valid Values</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>condition</code></td>
+                    <td>Text</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>-</td>
+                    <td>"Mumps"</td>
+                    <td>Disease name (must be "Mumps")</td>
+                </tr>
+                <tr>
+                    <td><code>reporting_jurisdiction</code></td>
+                    <td>Code</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>2 chars</td>
+                    <td>State abbr</td>
+                    <td>Reporting state/territory</td>
+                </tr>
+                <tr>
+                    <td><code>case_status</code></td>
+                    <td>Code</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>SNOMED CT</td>
+                    <td>410605003, 2931005, 415684004</td>
+                    <td>Confirmed/Probable/Suspected</td>
+                </tr>
+                <tr>
+                    <td><code>report_date</code></td>
+                    <td>Date</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>YYYY-MM-DD</td>
+                    <td>ISO 8601</td>
+                    <td>Date reported</td>
+                </tr>
+                <tr>
+                    <td><code>illness_onset_date</code></td>
+                    <td>Date</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>YYYY-MM-DD</td>
+                    <td>ISO 8601</td>
+                    <td>Symptom onset date</td>
+                </tr>
+                <tr>
+                    <td><code>parotitis</code></td>
+                    <td>Code</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>1 char</td>
+                    <td>Y, N, U</td>
+                    <td>Acute parotitis present? (key mumps symptom)</td>
+                </tr>
+                <tr>
+                    <td><code>parotitis_duration_days</code></td>
+                    <td>Integer</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>0-60</td>
+                    <td>Number of days</td>
+                    <td>Duration of parotitis (≥2 days for case definition)</td>
+                </tr>
+                <tr>
+                    <td><code>lab_result</code></td>
+                    <td>Code</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>SNOMED CT</td>
+                    <td>10828004, 260385009, 419984006</td>
+                    <td>Laboratory result (Positive/Negative/Inconclusive)</td>
+                </tr>
+                <tr>
+                    <td><code>lab_test_type</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>-</td>
+                    <td>MUMPS_IGM, MUMPS_PCR, VIRAL_CULTURE</td>
+                    <td>Type of lab test performed</td>
+                </tr>
+                <tr>
+                    <td><code>specimen_collection_date</code></td>
+                    <td>Date</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>YYYY-MM-DD</td>
+                    <td>ISO 8601</td>
+                    <td>Date specimen collected (optimal: 3-45 days post-onset for IgM)</td>
+                </tr>
+                <tr>
+                    <td><code>orchitis</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1 char</td>
+                    <td>Y, N, U</td>
+                    <td>Testicular inflammation (males only)</td>
+                </tr>
+                <tr>
+                    <td><code>oophoritis</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1 char</td>
+                    <td>Y, N, U</td>
+                    <td>Ovarian inflammation (females only)</td>
+                </tr>
+                <tr>
+                    <td><code>encephalitis</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1 char</td>
+                    <td>Y, N, U</td>
+                    <td>Brain inflammation</td>
+                </tr>
+                <tr>
+                    <td><code>meningitis</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1 char</td>
+                    <td>Y, N, U</td>
+                    <td>Meningeal inflammation</td>
+                </tr>
+                <tr>
+                    <td><code>pancreatitis</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1 char</td>
+                    <td>Y, N, U</td>
+                    <td>Pancreatic inflammation</td>
+                </tr>
+                <tr>
+                    <td><code>mmr_doses</code></td>
+                    <td>Integer</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>0-10</td>
+                    <td>Dose count</td>
+                    <td>Number of MMR vaccine doses received</td>
+                </tr>
+                <tr>
+                    <td><code>genotype</code></td>
+                    <td>Code</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>1-3 chars</td>
+                    <td>A-L, N, UNK</td>
+                    <td>Mumps virus genotype (if sequenced)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Codebook -->
+    <div class="codebook">
+        <h3 class="section-subtitle">📚 Valid Code Sets</h3>
+        <div class="codebook-grid">
+            <div class="code-card">
+                <h4>Lab Result (SNOMED CT)</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">10828004</span> = Positive</li>
+                    <li><span class="code-value">260385009</span> = Negative</li>
+                    <li><span class="code-value">260373001</span> = Detected</li>
+                    <li><span class="code-value">260415000</span> = Not Detected</li>
+                    <li><span class="code-value">419984006</span> = Inconclusive</li>
+                    <li><span class="code-value">125154007</span> = Specimen Unsatisfactory</li>
+                </ul>
+            </div>
+            <div class="code-card">
+                <h4>Lab Test Types</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">MUMPS_IGM</span> = IgM antibody test</li>
+                    <li><span class="code-value">MUMPS_PCR</span> = RT-PCR</li>
+                    <li><span class="code-value">VIRAL_CULTURE</span> = Viral culture</li>
+                    <li><span class="code-value">MUMPS_IGG</span> = IgG antibody test</li>
+                </ul>
+            </div>
+            <div class="code-card">
+                <h4>Mumps Genotypes</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">G</span> = Genotype G (common in US)</li>
+                    <li><span class="code-value">H</span> = Genotype H (UK)</li>
+                    <li><span class="code-value">D</span> = Genotype D (Asia)</li>
+                    <li><span class="code-value">A-L, N</span> = Other genotypes</li>
+                    <li><span class="code-value">UNK</span> = Unknown/Not sequenced</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NREVSS Section -->
+<div class="stream-section" id="nrevss">
+    <div class="stream-header">
+        <div class="stream-title">NREVSS (Laboratory Surveillance)</div>
+        <div class="download-buttons">
+            <a href="/static/templates/nrevss_template.csv" download class="btn-download">
+                📥 Download Template
+            </a>
+            <a href="/static/templates/nrevss_example.csv" download class="btn-download btn-example">
+                📄 Download Example
+            </a>
+        </div>
+    </div>
+
+    <p style="color: #666; margin-bottom: 2rem;">
+        Weekly aggregate laboratory reports for respiratory virus surveillance.
+    </p>
+
+    <!-- Data Dictionary -->
+    <div class="data-dictionary">
+        <h3 class="section-subtitle">📖 Data Dictionary</h3>
+        <table class="dict-table">
+            <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Format/Length</th>
+                    <th>Valid Values</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>reporting_week</code></td>
+                    <td>Text</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>YYYY-WNN</td>
+                    <td>CDC MMWR week format</td>
+                    <td>Reporting week (e.g., "2026-W04")</td>
+                </tr>
+                <tr>
+                    <td><code>reporting_lab</code></td>
+                    <td>Text</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>-</td>
+                    <td>Lab identifier</td>
+                    <td>Laboratory name or ID</td>
+                </tr>
+                <tr>
+                    <td><code>state</code></td>
+                    <td>Code</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>2 chars</td>
+                    <td>State abbr</td>
+                    <td>Laboratory location state</td>
+                </tr>
+                <tr>
+                    <td><code>total_specimens_tested</code></td>
+                    <td>Integer</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>0-100,000</td>
+                    <td>Specimen count</td>
+                    <td>Total specimens tested this week</td>
+                </tr>
+                <tr>
+                    <td><code>virus_type</code></td>
+                    <td>Text</td>
+                    <td><span class="required-badge">REQUIRED</span></td>
+                    <td>-</td>
+                    <td>Standard virus names</td>
+                    <td>Respiratory virus type tested</td>
+                </tr>
+                <tr>
+                    <td><code>positive_results</code></td>
+                    <td>Integer</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>≥0</td>
+                    <td>Count</td>
+                    <td>Number of positive test results</td>
+                </tr>
+                <tr>
+                    <td><code>negative_results</code></td>
+                    <td>Integer</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>≥0</td>
+                    <td>Count</td>
+                    <td>Number of negative test results</td>
+                </tr>
+                <tr>
+                    <td><code>percent_positive</code></td>
+                    <td>Decimal</td>
+                    <td><span class="optional-badge">OPTIONAL</span></td>
+                    <td>0.0-100.0</td>
+                    <td>Percentage</td>
+                    <td>Percent positive (positive/total × 100)</td>
+                </tr>
+            </tbody>
+        </table>
+        <p style="margin-top: 1rem; padding: 1rem; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+            <strong>Note:</strong> At least one result field (positive_results, negative_results, or percent_positive) is required.
+            If both positive and negative counts are provided, they must sum to total_specimens_tested.
+        </p>
+    </div>
+
+    <!-- Codebook -->
+    <div class="codebook">
+        <h3 class="section-subtitle">📚 Valid Code Sets</h3>
+        <div class="codebook-grid">
+            <div class="code-card">
+                <h4>Standard Virus Types</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">RSV</span> = Respiratory Syncytial Virus</li>
+                    <li><span class="code-value">Influenza A</span></li>
+                    <li><span class="code-value">Influenza B</span></li>
+                    <li><span class="code-value">Parainfluenza 1</span></li>
+                    <li><span class="code-value">Parainfluenza 2</span></li>
+                    <li><span class="code-value">Parainfluenza 3</span></li>
+                    <li><span class="code-value">Parainfluenza 4</span></li>
+                    <li><span class="code-value">Adenovirus</span></li>
+                    <li><span class="code-value">Rhinovirus</span></li>
+                    <li><span class="code-value">Enterovirus</span></li>
+                    <li><span class="code-value">Human Metapneumovirus</span></li>
+                    <li><span class="code-value">Coronavirus (non-COVID)</span></li>
+                    <li><span class="code-value">SARS-CoV-2</span></li>
+                </ul>
+            </div>
+            <div class="code-card">
+                <h4>Week Format (MMWR)</h4>
+                <ul class="code-list">
+                    <li><span class="code-value">2026-W04</span> = Week 4 of 2026</li>
+                    <li><span class="code-value">2026-W52</span> = Week 52 of 2026</li>
+                    <li><span class="code-value">2027-W01</span> = Week 1 of 2027</li>
+                </ul>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #666;">
+                    Format: YYYY-WNN (4-digit year, hyphen, W, 2-digit week 01-53)
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center; margin: 3rem 0;">
+    <a href="/" class="btn btn-secondary">Back to Dashboard</a>
+    <a href="/documentation" class="btn btn-primary" style="margin-left: 1rem;">View Full Documentation</a>
+</div>
+
+{% endblock %}
