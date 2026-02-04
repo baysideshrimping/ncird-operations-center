@@ -34,8 +34,9 @@ class NREVSSValidator(BaseValidator):
         'percent_positive'
     ]
 
-    # Valid virus types
+    # Valid virus types (13 viruses tracked by CDC NREVSS)
     VIRUS_TYPES = [
+        # Respiratory viruses
         'RSV',  # Respiratory Syncytial Virus
         'Influenza A',
         'Influenza B',
@@ -43,12 +44,23 @@ class NREVSSValidator(BaseValidator):
         'Parainfluenza 2',
         'Parainfluenza 3',
         'Parainfluenza 4',
-        'Adenovirus',
+        'Human Metapneumovirus',  # HMPV
+        'Rhinovirus/Enterovirus',
         'Rhinovirus',
         'Enterovirus',
-        'Human Metapneumovirus',
+        'Adenovirus',
+        'Respiratory Adenovirus',
+        'SARS-CoV-2',
+        # Human coronaviruses (non-COVID, 4 types)
         'Coronavirus (non-COVID)',
-        'SARS-CoV-2'
+        'Coronavirus OC43',
+        'Coronavirus 229E',
+        'Coronavirus NL63',
+        'Coronavirus HKU1',
+        'Human Coronavirus',
+        # Enteric viruses
+        'Rotavirus',
+        'Norovirus'
     ]
 
     def __init__(self):

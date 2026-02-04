@@ -337,6 +337,62 @@
     </p>
 </div>
 
+<!-- Demo Disclaimer -->
+<div style="text-align: center; margin-bottom: 1.5rem; padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
+    <p style="color: #856404; margin: 0; font-size: 0.9rem;">
+        <strong>Demo Notice:</strong> This application is for demonstration purposes only.
+        All data shown is simulated and does not represent actual CDC surveillance data or real public health information.
+        Built by Peraton to demonstrate AI-assisted data validation tool development.
+    </p>
+</div>
+
+<!-- About the Data Streams -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">About These Data Streams</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+
+        <div style="background: #f0fdf4; padding: 1rem; border-radius: 6px; border-left: 4px solid #22c55e;">
+            <h4 style="color: #166534; margin-bottom: 0.5rem;">NNAD (NNDSS)</h4>
+            <p style="font-size: 0.9rem; color: #333; margin-bottom: 0.5rem;">
+                <strong>National Notifiable Diseases Surveillance System</strong> - Case-level disease notifications
+                submitted by state/territorial health departments to CDC.
+            </p>
+            <p style="font-size: 0.85rem; color: #666; margin: 0;">
+                <strong>Flow:</strong> Healthcare Provider → State Health Dept → CDC<br>
+                <strong>Format:</strong> HL7 messages using Message Mapping Guides (MMGs)<br>
+                <strong>Case Status Codes:</strong> SNOMED CT (410605003=Confirmed, 2931005=Probable)
+            </p>
+        </div>
+
+        <div style="background: #fefce8; padding: 1rem; border-radius: 6px; border-left: 4px solid #eab308;">
+            <h4 style="color: #854d0e; margin-bottom: 0.5rem;">Mumps (MMG v1.0.2)</h4>
+            <p style="font-size: 0.9rem; color: #333; margin-bottom: 0.5rem;">
+                <strong>Disease-specific surveillance</strong> extending NNDSS with mumps-specific clinical
+                and laboratory data per CDC case definitions.
+            </p>
+            <p style="font-size: 0.85rem; color: #666; margin: 0;">
+                <strong>Confirmed:</strong> Requires RT-PCR, viral culture, or 4-fold IgG rise<br>
+                <strong>Probable:</strong> IgM positive + parotitis ≥2 days (or complication)<br>
+                <strong>Note:</strong> IgM alone is <em>supportive only</em>, not confirmatory
+            </p>
+        </div>
+
+        <div style="background: #eff6ff; padding: 1rem; border-radius: 6px; border-left: 4px solid #3b82f6;">
+            <h4 style="color: #1e40af; margin-bottom: 0.5rem;">NREVSS</h4>
+            <p style="font-size: 0.9rem; color: #333; margin-bottom: 0.5rem;">
+                <strong>National Respiratory and Enteric Virus Surveillance System</strong> - Voluntary
+                laboratory-based surveillance tracking 13 respiratory/enteric viruses.
+            </p>
+            <p style="font-size: 0.85rem; color: #666; margin: 0;">
+                <strong>Submitters:</strong> Clinical labs, hospital labs, commercial labs<br>
+                <strong>Frequency:</strong> Weekly (MMWR week format: YYYY-WNN)<br>
+                <strong>Data:</strong> Aggregate counts (specimens tested, positives) - not case-level
+            </p>
+        </div>
+
+    </div>
+</div>
+
 <!-- Framework Info -->
 <div class="framework-info">
     <strong>🎯 Data Quality Framework:</strong> All validations are organized according to the
@@ -2503,13 +2559,6 @@ if total_val > 0:
     </div>
 
     <!-- Demo Disclaimer -->
-    <div style="text-align: center; margin-top: 1.5rem; padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
-        <p style="color: #856404; margin: 0; font-size: 0.85rem;">
-            <strong>Demo Notice:</strong> This application is for demonstration purposes only.
-            All data shown is simulated and does not represent actual CDC surveillance data or real public health information.
-            Built by Peraton to demonstrate AI-assisted data validation tool development.
-        </p>
-    </div>
 </div>
 
 <div style="text-align: center; margin: 3rem 0;">

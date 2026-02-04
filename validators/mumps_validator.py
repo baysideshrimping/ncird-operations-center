@@ -283,13 +283,15 @@ class MumpsValidator(BaseValidator):
                     except:
                         pass
 
-        # Case classification logic
-        # Confirmed: Lab-confirmed (positive IgM, PCR, or culture)
-        # Probable: Clinical case definition with epidemiological linkage
+        # Case classification logic per CDC 2024 case definition:
+        # - Confirmed: Requires CONFIRMATORY lab evidence (PCR, culture, or 4-fold IgG rise)
+        # - Probable: IgM positive + clinical criteria (parotitis ≥2 days or complication)
+        # - IgM alone is SUPPORTIVE only, not confirmatory
         if 'case_status' in df.columns and 'lab_result' in df.columns:
             for idx in range(len(df)):
                 status = df['case_status'].iloc[idx]
                 lab = df['lab_result'].iloc[idx]
+                lab_test = df['lab_test_type'].iloc[idx] if 'lab_test_type' in df.columns else None
 
                 if pd.notna(status) and pd.notna(lab):
                     # Confirmed case should have positive lab result
@@ -300,6 +302,19 @@ class MumpsValidator(BaseValidator):
                             field='case_status',
                             doc_link='#mumps-consistency-3-1'
                         )
+
+                    # CDC: IgM is supportive only, not confirmatory
+                    # Confirmed cases should have PCR, culture, or IgG rise - not just IgM
+                    if status == '410605003' and pd.notna(lab_test):
+                        lab_test_str = str(lab_test).upper()
+                        if 'IGM' in lab_test_str and 'PCR' not in lab_test_str and 'CULTURE' not in lab_test_str:
+                            result.add_warning(
+                                "Confirmed case based on IgM only - per CDC, IgM is supportive evidence only. "
+                                "Confirmatory evidence requires RT-PCR, viral culture, or 4-fold IgG rise.",
+                                row=idx+2,
+                                field='lab_test_type',
+                                doc_link='#mumps-consistency-3-1'
+                            )
 
         # Check for mumps-specific complications
         complications = []
