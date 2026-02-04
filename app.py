@@ -38,6 +38,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = config.SECRET_KEY
 app.config['MAX_CONTENT_LENGTH'] = config.MAX_CONTENT_LENGTH
 app.config['UPLOAD_FOLDER'] = config.UPLOAD_FOLDER
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Ensure data directories exist
 os.makedirs(config.DATA_DIR, exist_ok=True)
@@ -76,7 +78,10 @@ def login():
     error = None
     if request.method == 'POST':
         password = request.form.get('password', '')
-        if password == '123':
+        disclaimer = request.form.get('disclaimer')
+        if not disclaimer:
+            error = 'You must agree to the disclaimer to continue.'
+        elif password == '123':
             session['logged_in'] = True
             return redirect(url_for('dashboard'))
         else:
@@ -335,6 +340,12 @@ def documentation():
 def templates():
     """Templates & Data Dictionaries - CSV templates and field specifications"""
     return render_template('templates_resources.html')
+
+
+@app.route('/sources')
+def sources():
+    """Public sources and references used in this project"""
+    return render_template('sources.html')
 
 
 # ============================================================================
