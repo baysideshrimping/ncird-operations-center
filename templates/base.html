@@ -88,7 +88,7 @@
             bottom: 0;
             font-size: 14px;
             font-weight: 600;
-            color: rgba(0, 0, 0, 0.04);
+            color: rgba(0, 0, 0, 0.06);
             transform: rotate(-25deg);
             pointer-events: none;
             z-index: 0;
@@ -297,6 +297,15 @@
             </ul>
         </div>
     </nav>
+
+    <!-- Demo Disclaimer Banner -->
+    <div style="background: #fff3cd; border-bottom: 2px solid #ffc107; padding: 0.75rem 2rem; text-align: center;">
+        <p style="margin: 0; color: #856404; font-size: 0.95rem;">
+            <strong>DEMO NOTICE:</strong> This application is for <strong>demonstration purposes only</strong>.
+            All data is simulated and does not represent actual CDC surveillance data.
+            Built by Peraton to demonstrate AI-assisted data validation.
+        </p>
+    </div>
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
