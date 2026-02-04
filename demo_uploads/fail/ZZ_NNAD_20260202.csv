@@ -1,0 +1,6 @@
+condition,reporting_jurisdiction,case_status,report_date,illness_onset_date,age_at_case_investigation,age_unit,sex,hospitalized,died,pregnant,outbreak_associated
+Pertussis,ZZ,410605003,2026-02-02,2026-01-28,12,a,M,N,N,NA,N
+Pertussis,XX,2931005,2026-02-01,2026-01-25,8,a,F,N,N,NA,N
+Measles,ZZ,410605003,2026-02-02,2026-01-20,35,a,M,Y,N,NA,N
+Pertussis,GA,INVALID_CODE,2026-02-01,2026-01-27,4,a,F,N,N,NA,N
+Hepatitis A,ZZ,410605003,2026-02-02,2026-02-10,28,a,F,N,N,N,N

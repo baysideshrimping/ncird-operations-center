@@ -1,0 +1,6 @@
+condition,reporting_jurisdiction,case_status,report_date,illness_onset_date,parotitis,parotitis_duration_days,lab_result,lab_test_type,sex,age_at_case_investigation,mmr_doses,orchitis,oophoritis,encephalitis,hospitalized,genotype
+Mumps,CA,410605003,2026-01-20,2026-01-12,Y,5,POSITIVE,MUMPS_PCR,M,22,2,N,N,N,N,G
+Mumps,CA,410605003,2026-01-19,2026-01-10,Y,7,NEGATIVE,MUMPS_IGM,F,19,2,N,N,N,N,
+Mumps,CA,410605003,2026-01-20,2026-01-14,N,8,10828004,MUMPS_PCR,M,21,2,N,N,N,N,
+Mumps,CA,2931005,2026-01-18,2026-01-11,Y,1,10828004,MUMPS_PCR,F,20,2,N,Y,N,N,G
+Mumps,CA,410605003,2026-01-20,2026-01-08,Y,4,10828004,MUMPS_PCR,F,23,2,Y,N,N,N,Z

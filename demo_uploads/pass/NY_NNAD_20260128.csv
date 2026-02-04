@@ -1,0 +1,7 @@
+condition,reporting_jurisdiction,case_status,report_date,illness_onset_date,age_at_case_investigation,age_unit,sex,hospitalized,died,pregnant,outbreak_associated
+Hepatitis A,NY,410605003,2026-01-28,2026-01-15,34,a,M,N,N,NA,N
+Hepatitis A,NY,410605003,2026-01-27,2026-01-12,52,a,F,Y,N,N,N
+Hepatitis A,NY,2931005,2026-01-28,2026-01-18,29,a,M,N,N,NA,Y
+Salmonellosis,NY,410605003,2026-01-26,2026-01-20,7,a,F,N,N,NA,Y
+Salmonellosis,NY,410605003,2026-01-27,2026-01-21,41,a,M,Y,N,NA,Y
+Salmonellosis,NY,2931005,2026-01-28,2026-01-22,15,a,F,N,N,N,Y

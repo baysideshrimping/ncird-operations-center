@@ -1,0 +1,8 @@
+reporting_week,reporting_lab,state,total_specimens_tested,virus_type,positive_results,negative_results,percent_positive
+2026-W06,BioReference Labs NJ,NJ,1000,RSV,150,900,15.0
+2026-W06,BioReference Labs NJ,NJ,1000,Influenza A,250,700,25.0
+2026W06,BioReference Labs NJ,NJ,800,Influenza B,80,720,10.0
+2026-W06,BioReference Labs NJ,ZZ,750,RSV,100,650,13.3
+2026-W06,BioReference Labs PA,PA,500,Custom Virus Type,50,450,10.0
+2026-W06,BioReference Labs PA,PA,600,RSV,-10,610,0.0
+2026-W06,BioReference Labs PA,PA,400,Influenza A,100,350,125.0

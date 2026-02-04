@@ -1,0 +1,9 @@
+reporting_week,reporting_lab,state,total_specimens_tested,virus_type,positive_results,negative_results,percent_positive
+2026-W05,Quest Diagnostics Atlanta,GA,1250,RSV,187,1063,15.0
+2026-W05,Quest Diagnostics Atlanta,GA,1250,Influenza A,312,938,25.0
+2026-W05,Quest Diagnostics Atlanta,GA,1250,Influenza B,94,1156,7.5
+2026-W05,Quest Diagnostics Dallas,TX,980,RSV,147,833,15.0
+2026-W05,Quest Diagnostics Dallas,TX,980,Influenza A,245,735,25.0
+2026-W05,Quest Diagnostics Dallas,TX,980,Influenza B,78,902,8.0
+2026-W05,Quest Diagnostics Phoenix,AZ,750,RSV,98,652,13.1
+2026-W05,Quest Diagnostics Phoenix,AZ,750,Influenza A,188,562,25.1

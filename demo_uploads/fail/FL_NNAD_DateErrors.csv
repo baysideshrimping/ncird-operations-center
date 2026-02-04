@@ -1,0 +1,6 @@
+condition,reporting_jurisdiction,case_status,report_date,illness_onset_date,age_at_case_investigation,age_unit,sex,hospitalized,died,pregnant,outbreak_associated
+Pertussis,FL,410605003,2026-01-15,2026-01-20,25,a,F,N,N,N,N
+Pertussis,FL,2931005,January 15 2026,2026-01-10,8,a,M,N,N,NA,N
+Measles,FL,410605003,2026-01-18,2026/01/05,32,a,F,Y,N,U,N
+Hepatitis A,FL,410605003,2026-01-20,2026-01-15,150,a,M,Y,Y,NA,N
+Pertussis,FL,2931005,2026-01-22,2026-01-18,35,a,M,N,Y,Y,N

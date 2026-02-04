@@ -1,0 +1,8 @@
+reporting_week,reporting_lab,state,total_specimens_tested,virus_type,positive_results,negative_results,percent_positive
+2026-W04,LabCorp Charlotte,NC,890,RSV,134,756,15.1
+2026-W04,LabCorp Charlotte,NC,890,Influenza A,223,667,25.1
+2026-W04,LabCorp Charlotte,NC,890,Influenza B,71,819,8.0
+2026-W04,LabCorp Charlotte,NC,890,Human Metapneumovirus,45,845,5.1
+2026-W04,LabCorp Miami,FL,1100,RSV,176,924,16.0
+2026-W04,LabCorp Miami,FL,1100,Influenza A,264,836,24.0
+2026-W04,LabCorp Miami,FL,1100,SARS-CoV-2,55,1045,5.0
