@@ -1430,9 +1430,16 @@ if previous_submissions:
         </a>
     </div>
 
-    <p style="color: #666; margin-bottom: 2rem;">
+    <p style="color: #666; margin-bottom: 1rem;">
         Mumps-specific validations with clinical criteria (parotitis) and laboratory confirmation (IgM, PCR).
     </p>
+
+    <div style="background: #e8f4f8; border-left: 4px solid #17a2b8; padding: 1rem; margin-bottom: 2rem; border-radius: 0 6px 6px 0;">
+        <p style="margin: 0; color: #0c5460; font-size: 0.9rem;">
+            <strong>Note:</strong> Mumps validations use 5 categories. Uniqueness/deduplication (category 6) is handled at the NNAD level
+            since Mumps cases flow through the broader notifiable disease surveillance system where cross-case deduplication occurs.
+        </p>
+    </div>
 
     <!-- Completeness -->
     <div class="accordion">
@@ -1612,7 +1619,7 @@ if duration_val > 60:
                 <div class="rule-grid">
                     <div class="rule-card error" id="mumps-validity-4-1">
                         <div class="rule-header">
-                            <span class="rule-title">4.1 Lab Result SNOMED CT Codes</span>
+                            <span class="rule-title">3.1 Lab Result SNOMED CT Codes</span>
                             <span class="severity-badge severity-error">ERROR</span>
                         </div>
                         <div class="rule-description">
@@ -1650,7 +1657,7 @@ if lab_result_str not in LAB_RESULT_CODES:
 
                     <div class="rule-card warning" id="mumps-validity-4-2">
                         <div class="rule-header">
-                            <span class="rule-title">4.2 Parotitis Y/N/U Format</span>
+                            <span class="rule-title">3.2 Parotitis Y/N/U Format</span>
                             <span class="severity-badge severity-warning">WARNING</span>
                         </div>
                         <div class="rule-description">
@@ -1678,7 +1685,7 @@ if not is_valid:
 
                     <div class="rule-card warning" id="mumps-validity-4-3">
                         <div class="rule-header">
-                            <span class="rule-title">4.3 Genotype Validation</span>
+                            <span class="rule-title">3.3 Genotype Validation</span>
                             <span class="severity-badge severity-warning">WARNING</span>
                         </div>
                         <div class="rule-description">
@@ -1709,7 +1716,7 @@ if genotype_str and genotype_str not in MUMPS_GENOTYPES:
 
                     <div class="rule-card error" id="mumps-validity-4-4">
                         <div class="rule-header">
-                            <span class="rule-title">4.4 Outbreak Associated Code</span>
+                            <span class="rule-title">3.4 Outbreak Associated Code</span>
                             <span class="severity-badge severity-error">ERROR</span>
                         </div>
                         <div class="rule-description">
@@ -1731,7 +1738,7 @@ if outbreak_str not in YNU_CODES.keys():
 
                     <div class="rule-card warning" id="mumps-validity-4-5">
                         <div class="rule-header">
-                            <span class="rule-title">4.5 Import Status Codes</span>
+                            <span class="rule-title">3.5 Import Status Codes</span>
                             <span class="severity-badge severity-warning">WARNING</span>
                         </div>
                         <div class="rule-description">
@@ -1754,7 +1761,7 @@ if status_str not in valid_import:
 
                     <div class="rule-card error" id="mumps-validity-4-6">
                         <div class="rule-header">
-                            <span class="rule-title">4.6 Date Format (ISO 8601)</span>
+                            <span class="rule-title">3.6 Date Format (ISO 8601)</span>
                             <span class="severity-badge severity-error">ERROR</span>
                         </div>
                         <div class="rule-description">
@@ -1797,7 +1804,7 @@ for field in date_fields:
                 <div class="rule-grid">
                     <div class="rule-card warning" id="mumps-timeliness-5-1">
                         <div class="rule-header">
-                            <span class="rule-title">5.1 IgM Specimen Collection Window</span>
+                            <span class="rule-title">4.1 IgM Specimen Collection Window</span>
                             <span class="severity-badge severity-warning">WARNING</span>
                         </div>
                         <div class="rule-description">
@@ -1843,7 +1850,7 @@ if days_from_onset < 3:
                 <div class="rule-grid">
                     <div class="rule-card warning" id="mumps-consistency-3-1">
                         <div class="rule-header">
-                            <span class="rule-title">3.1 Parotitis-Lab Correlation</span>
+                            <span class="rule-title">5.1 Parotitis-Lab Correlation</span>
                             <span class="severity-badge severity-warning">WARNING</span>
                         </div>
                         <div class="rule-description">
@@ -1882,7 +1889,7 @@ if parotitis == 'N' and pd.notna(duration) and duration > 0:
 
                     <div class="rule-card error" id="mumps-consistency-3-2">
                         <div class="rule-header">
-                            <span class="rule-title">3.2 Specimen Date Before Result</span>
+                            <span class="rule-title">5.2 Specimen Date Before Result</span>
                             <span class="severity-badge severity-error">ERROR</span>
                         </div>
                         <div class="rule-description">
@@ -1906,7 +1913,7 @@ if collection_dt > result_dt:
 
                     <div class="rule-card warning" id="mumps-consistency-3-3">
                         <div class="rule-header">
-                            <span class="rule-title">3.3 Clinical Case Definition Criteria</span>
+                            <span class="rule-title">5.3 Clinical Case Definition Criteria</span>
                             <span class="severity-badge severity-warning">WARNING</span>
                         </div>
                         <div class="rule-description">
@@ -1937,7 +1944,7 @@ if 'parotitis' in df.columns:
 
                     <div class="rule-card error" id="mumps-consistency-3-4">
                         <div class="rule-header">
-                            <span class="rule-title">3.4 Sex-Specific Complications</span>
+                            <span class="rule-title">5.4 Sex-Specific Complications</span>
                             <span class="severity-badge severity-error">ERROR</span>
                         </div>
                         <div class="rule-description">
@@ -1963,7 +1970,7 @@ if orchitis == 'Y' and sex == 'F':
 
                     <div class="rule-card warning" id="mumps-consistency-3-5">
                         <div class="rule-header">
-                            <span class="rule-title">3.5 Severe Complications vs Hospitalization</span>
+                            <span class="rule-title">5.5 Severe Complications vs Hospitalization</span>
                             <span class="severity-badge severity-warning">WARNING</span>
                         </div>
                         <div class="rule-description">
