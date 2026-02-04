@@ -8,6 +8,7 @@ Includes mumps-specific clinical and laboratory criteria
 from .base_validator import BaseValidator
 from utils.validators_common import (
     validate_date_format,
+    validate_not_future_date,
     validate_code_in_list,
     validate_integer
 )
@@ -128,10 +129,10 @@ class MumpsValidator(BaseValidator):
                             doc_link='#mumps-validity-4-2'
                         )
 
-        # Parotitis (key symptom)
+        # Parotitis (key symptom) - REQUIRED field
         if 'parotitis' in df.columns:
             for idx, parotitis in enumerate(df['parotitis']):
-                if pd.notna(parotitis):
+                if pd.notna(parotitis) and str(parotitis).strip():
                     is_valid, msg = validate_code_in_list(
                         str(parotitis).upper(),
                         self.YNU_VALUES.keys(),
@@ -145,8 +146,9 @@ class MumpsValidator(BaseValidator):
                             doc_link='#mumps-validity-4-2'
                         )
                 else:
-                    result.add_warning(
-                        "Parotitis value is missing",
+                    # Parotitis is required for mumps case classification
+                    result.add_error(
+                        "Parotitis is required for mumps case data (must be Y/N/U)",
                         row=idx+2,
                         field='parotitis',
                         doc_link='#mumps-completeness-1-2'
@@ -213,6 +215,7 @@ class MumpsValidator(BaseValidator):
             if field in df.columns:
                 for idx, date_val in enumerate(df[field]):
                     if pd.notna(date_val) and str(date_val).strip():
+                        # Format check
                         is_valid, msg = validate_date_format(date_val)
                         if not is_valid:
                             result.add_error(
@@ -221,6 +224,16 @@ class MumpsValidator(BaseValidator):
                                 field=field,
                                 doc_link='#mumps-validity-4-6'
                             )
+                        else:
+                            # Future date check
+                            is_valid, msg = validate_not_future_date(date_val, field)
+                            if not is_valid:
+                                result.add_error(
+                                    msg,
+                                    row=idx+2,
+                                    field=field,
+                                    doc_link='#mumps-validity-4-6'
+                                )
 
     def validate_custom(self, df, result):
         """Mumps-specific custom validations"""

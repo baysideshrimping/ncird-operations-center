@@ -40,6 +40,87 @@ def validate_date_range(date_str, min_year=1900, max_year=None):
     except ValueError:
         return (False, "Invalid date")
 
+
+def validate_not_future_date(date_val, field_name="Date"):
+    """
+    Validate that a date is not in the future
+
+    Args:
+        date_val: Date value (string or datetime-like)
+        field_name: Name of the field for error message
+
+    Returns:
+        (is_valid, error_message or None)
+    """
+    if pd.isna(date_val) or date_val == '':
+        return (True, None)  # Let required field checks handle missing
+
+    try:
+        if isinstance(date_val, str):
+            # Try common formats
+            for fmt in ['%Y-%m-%d', '%m/%d/%Y', '%Y/%m/%d']:
+                try:
+                    date_obj = datetime.strptime(date_val.strip(), fmt)
+                    break
+                except ValueError:
+                    continue
+            else:
+                # Try pandas parsing as fallback
+                date_obj = pd.to_datetime(date_val)
+        else:
+            date_obj = pd.to_datetime(date_val)
+
+        if date_obj > datetime.now():
+            return (False, f"{field_name} cannot be in the future ({date_val})")
+
+        return (True, None)
+    except:
+        return (True, None)  # Let format validation handle parse errors
+
+
+def validate_mmwr_week(week_str):
+    """
+    Validate MMWR/CDC week format (YYYY-WNN)
+
+    Args:
+        week_str: Week string like "2026-W05"
+
+    Returns:
+        (is_valid, error_message or None)
+    """
+    import re
+
+    if pd.isna(week_str) or week_str == '':
+        return (False, "Reporting week is required")
+
+    week_str = str(week_str).strip()
+
+    # Check format
+    match = re.match(r'^(\d{4})-W(\d{2})$', week_str)
+    if not match:
+        return (False, f"Invalid week format: {week_str} (expected YYYY-WNN, e.g., 2026-W05)")
+
+    year = int(match.group(1))
+    week = int(match.group(2))
+
+    # Validate week number (1-53)
+    if week < 1 or week > 53:
+        return (False, f"Invalid week number: {week} (must be 1-53)")
+
+    # Check not in future
+    now = datetime.now()
+    current_year = now.year
+    current_week = now.isocalendar()[1]
+
+    if year > current_year or (year == current_year and week > current_week):
+        return (False, f"Week {week_str} is in the future")
+
+    # Reasonable year range
+    if year < 2000 or year > current_year:
+        return (False, f"Year {year} is out of valid range (2000-{current_year})")
+
+    return (True, None)
+
 def validate_email(email):
     """Validate email format"""
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'

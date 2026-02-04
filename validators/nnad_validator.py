@@ -8,6 +8,7 @@ Handles both HL7 and CSV formats
 from .base_validator import BaseValidator
 from utils.validators_common import (
     validate_date_format,
+    validate_not_future_date,
     validate_code_in_list,
     validate_integer,
     check_duplicate_rows
@@ -168,6 +169,7 @@ class NNADValidator(BaseValidator):
             if field in df.columns:
                 for idx, date_val in enumerate(df[field]):
                     if pd.notna(date_val) and str(date_val).strip():
+                        # Format check
                         is_valid, msg = validate_date_format(date_val)
                         if not is_valid:
                             result.add_error(
@@ -176,6 +178,16 @@ class NNADValidator(BaseValidator):
                                 field=field,
                                 doc_link='#nnad-validity-4-3'
                             )
+                        else:
+                            # Future date check
+                            is_valid, msg = validate_not_future_date(date_val, field)
+                            if not is_valid:
+                                result.add_error(
+                                    msg,
+                                    row=idx+2,
+                                    field=field,
+                                    doc_link='#nnad-validity-4-3'
+                                )
 
         # Age validation
         if 'age_at_case_investigation' in df.columns:

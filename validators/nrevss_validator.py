@@ -9,7 +9,8 @@ from .base_validator import BaseValidator
 from utils.validators_common import (
     validate_date_format,
     validate_integer,
-    validate_percentage
+    validate_percentage,
+    validate_mmwr_week
 )
 from utils.state_codes import validate_state_code
 import pandas as pd
@@ -96,26 +97,16 @@ class NREVSSValidator(BaseValidator):
                             doc_link='#nrevss-validity-4-3'
                         )
 
-        # Reporting week format validation (YYYY-WNN)
+        # Reporting week validation (format, range, not future)
         if 'reporting_week' in df.columns:
             for idx, week in enumerate(df['reporting_week']):
-                if pd.notna(week):
-                    week_str = str(week).strip()
-                    # Check format: YYYY-WNN
-                    import re
-                    if not re.match(r'^\d{4}-W\d{2}$', week_str):
-                        result.add_error(
-                            f"Invalid week format: {week_str} (expected YYYY-WNN, e.g., 2026-W04)",
-                            row=idx+2,
-                            field='reporting_week',
-                            doc_link='#nrevss-validity-4-1'
-                        )
-                else:
+                is_valid, msg = validate_mmwr_week(week)
+                if not is_valid:
                     result.add_error(
-                        "Reporting week is missing",
+                        msg,
                         row=idx+2,
                         field='reporting_week',
-                        doc_link='#nrevss-completeness-1-1'
+                        doc_link='#nrevss-validity-4-1'
                     )
 
         # Virus type validation
@@ -184,6 +175,27 @@ class NREVSSValidator(BaseValidator):
 
     def validate_custom(self, df, result):
         """NREVSS-specific custom validations"""
+
+        # Validate positive_results <= total_specimens_tested
+        if all(col in df.columns for col in ['total_specimens_tested', 'positive_results']):
+            for idx in range(len(df)):
+                total = df['total_specimens_tested'].iloc[idx]
+                positive = df['positive_results'].iloc[idx]
+
+                if pd.notna(total) and pd.notna(positive):
+                    try:
+                        total_val = int(total)
+                        pos_val = int(positive)
+
+                        if pos_val > total_val:
+                            result.add_error(
+                                f"Positive results ({pos_val}) cannot exceed total specimens ({total_val})",
+                                row=idx+2,
+                                field='positive_results',
+                                doc_link='#nrevss-consistency-3-1'
+                            )
+                    except:
+                        pass
 
         # Validate positive + negative = total
         if all(col in df.columns for col in ['total_specimens_tested', 'positive_results', 'negative_results']):
